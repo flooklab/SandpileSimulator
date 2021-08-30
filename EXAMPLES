@@ -1,0 +1,11 @@
+i) 2-dim. simulation for lattice sizes [10, 20, ..., 70] using "FW model"
+   and "half-open" boundary conditions, including prior automatic
+   sandbox "criticalization" and final moment analysis:
+
+    ./SandpileSimulator -m FWM -d 2 -c coco -l 10 -L 70 -i 10 -C -a
+
+ii) Drive 2-dim. sandboxes with lattice sizes [10, 20, ..., 50] to state of SOC
+    using BTW model and save them to files ./CritSBox_...AUTO-POSTFIX....sbx;
+    use random seed 12345; activate sandpile visualization:
+
+    ./SandpileSimulator -m BTW -d 2 -l 10 -L 50 -i 10 -C -x -G -r 12345 -S ./CritSBox
