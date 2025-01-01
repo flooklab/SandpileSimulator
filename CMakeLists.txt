@@ -31,7 +31,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 set(SANDSIM_ENABLE_PLOTTER 0 CACHE BOOL "Build plotting class. Requires SFML 2.x!")
 set(SANDSIM_BUILD_DOCUMENTATION 0 CACHE BOOL "Build documentation with Doxygen.")
 
-project(SandpileSimulator VERSION 0.2.0)
+project(SandpileSimulator VERSION 0.2.1)
 
 set(EXECUTABLE_NAME ${PROJECT_NAME})
 
@@ -143,13 +143,14 @@ set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} ${LINKER_FLAGS_REQUIRED}
 
 
 if(SANDSIM_BUILD_DOCUMENTATION AND DOXYGEN_FOUND)
-  set(doxyfile_in "${PROJECT_SOURCE_DIR}/doc/Doxyfile.in")
-  set(doxyfile "${PROJECT_BINARY_DIR}/Doxyfile")
-  set(TEMPLATE_DIR "${PROJECT_SOURCE_DIR}/doc/template")
-  set(HEADERS_DIR "${PROJECT_BINARY_DIR}/include")
-  set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src/sources")
-  configure_file("${doxyfile_in}" "${doxyfile}" @ONLY)
-  add_custom_target(Documentation ALL ${DOXYGEN_EXECUTABLE} "${doxyfile}" WORKING_DIRECTORY "${PROJECT_BINARY_DIR}" VERBATIM)
+    set(doxyfile_in "${PROJECT_SOURCE_DIR}/doc/Doxyfile.in")
+    set(doxyfile "${PROJECT_BINARY_DIR}/Doxyfile")
+    set(SANDSIM_DOXYGEN_PROJECT_NUMBER "${CMAKE_PROJECT_VERSION}")
+    set(TEMPLATE_DIR "${PROJECT_SOURCE_DIR}/doc/template")
+    set(HEADERS_DIR "${PROJECT_BINARY_DIR}/include")
+    set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src/sources")
+    configure_file("${doxyfile_in}" "${doxyfile}" @ONLY)
+    add_custom_target(Documentation ALL ${DOXYGEN_EXECUTABLE} "${doxyfile}" WORKING_DIRECTORY "${PROJECT_BINARY_DIR}" VERBATIM)
 endif()
 
 install(TARGETS "${EXECUTABLE_NAME}-bin" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
