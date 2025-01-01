@@ -134,6 +134,8 @@ void Plotter::init(const unsigned int pFramerateLimit)
         throw std::runtime_error(stream.str());
     }
 
+    window->setActive(false);
+
     plotThreadRunning = true;
     plotThread = std::thread(&Plotter::plotLoop, this);
 }
@@ -196,6 +198,8 @@ void Plotter::plotLoop()
 
     sf::Clock clk;
     double frRt = 0, frRt2 = 0, frRt3 = 0, frRt4 = 0;
+
+    window->setActive(true);
 
     while (plotThreadRunning && window->isOpen())
     {
@@ -300,6 +304,8 @@ void Plotter::plotLoop()
 
         window->display();
     }
+
+    window->setActive(false);
 
     plotThreadRunning = false;
 }
