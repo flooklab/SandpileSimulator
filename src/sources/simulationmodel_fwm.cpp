@@ -124,10 +124,10 @@ bool SimulationModel_FWM::getModelParameter(const std::string& pKey, int& pVal) 
  */
 std::vector<std::pair<std::string, std::string>> SimulationModel_FWM::listModelParameters() const
 {
-    return {{"FWM_criticalSlope", "The critical slope (q_crit) defines the height difference between neighboring lattice sites,"
+    return {{"FWM_criticalSlope", "The critical slope (q_crit) defines the height difference between neighboring lattice sites, "
                                   "at which the sandpile becomes locally unstable (which triggers an avalanche)."},
             {"FWM_relax_size_movedGrains", "Set to a value different from 0 to switch avalanche size from representing "
-                                           "\"accumulated number of critical sites\" to \"total number of grain movements\"."
+                                           "\"accumulated number of critical sites\" to \"total number of grain movements\". "
                                            "The default is 0 (size = number of critical sites)."}};
 }
 
