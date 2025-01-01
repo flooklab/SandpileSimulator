@@ -22,6 +22,13 @@
 
 #include "sandbox.h"
 
+#include <exception>
+#include <fstream>
+#include <ios>
+#include <new>
+#include <sstream>
+#include <stdexcept>
+
 /*!
  * \brief Constructor.
  *
@@ -108,7 +115,7 @@ Sandbox::Sandbox(std::vector<short> pShape, std::seed_seq& pSeedSeq) :
  *
  * \param pLevel New value for every lattice site.
  */
-void Sandbox::fill(short pLevel)
+void Sandbox::fill(const short pLevel)
 {
     sBox.assign(boxVolume, pLevel);
 }
@@ -316,7 +323,7 @@ void Sandbox::setBoundaryConditions(std::vector<std::pair<bool, bool>> pBounds)
  *
  * \param pAllOpen True for all boundaries open, False for all boundaries closed.
  */
-void Sandbox::setBoundaryConditions(bool pAllOpen)
+void Sandbox::setBoundaryConditions(const bool pAllOpen)
 {
     setBoundaryConditions(std::vector<std::pair<bool, bool>>(boxShape.size(), {pAllOpen, pAllOpen}));
 }
@@ -342,7 +349,7 @@ const std::vector<short>& Sandbox::getCurrentGrain() const
  *
  * \param pNumGrains Amount to be added to the content of the random lattice site.
  */
-void Sandbox::dropRandom(short pNumGrains)
+void Sandbox::dropRandom(const short pNumGrains)
 {
     currentGrainLinIdx = randomizer.randLin();
     linToCart(currentGrainLinIdx, currentGrainVec);
@@ -369,7 +376,7 @@ short Sandbox::getHeightAt(const std::vector<short>& pPos) const
  * \param pIdx Position of the lattice site as linear index as obtained from cartToLin().
  * \return The integer stored at the specified lattice site.
  */
-short Sandbox::getHeightAt(long long pIdx) const
+short Sandbox::getHeightAt(const long long pIdx) const
 {
     return columnAt(pIdx);
 }
@@ -391,7 +398,7 @@ short Sandbox::getHeightCurrent() const
  * \param pDiff Amount to be added to the specified lattice site.
  * \return The new value (after addition of \p pDiff).
  */
-short Sandbox::changeHeightAt(const std::vector<short>& pPos, short pDiff)
+short Sandbox::changeHeightAt(const std::vector<short>& pPos, const short pDiff)
 {
     return (columnAt(pPos) += pDiff);
 }
@@ -403,7 +410,7 @@ short Sandbox::changeHeightAt(const std::vector<short>& pPos, short pDiff)
  * \param pDiff Amount to be added to the specified lattice site.
  * \return The new value (after addition of \p pDiff).
  */
-short Sandbox::changeHeightAt(long long pIdx, short pDiff)
+short Sandbox::changeHeightAt(const long long pIdx, const short pDiff)
 {
     return (columnAt(pIdx) += pDiff);
 }
@@ -416,7 +423,7 @@ short Sandbox::changeHeightAt(long long pIdx, short pDiff)
  * \param pOffset Amount to be added to the current lattice site.
  * \return The new value (after addition of offset).
  */
-short Sandbox::changeHeightCurrent(short pOffset)
+short Sandbox::changeHeightCurrent(const short pOffset)
 {
     return (columnCurrent() += pOffset);
 }
@@ -440,7 +447,7 @@ short Sandbox::clearColumnAt(const std::vector<short>& pPos)
  * \param pIdx Position of the lattice site as linear index as obtained from cartToLin().
  * \return The old value (before resetting).
  */
-short Sandbox::clearColumnAt(long long pIdx)
+short Sandbox::clearColumnAt(const long long pIdx)
 {
     short tmp = columnAt(pIdx);
     columnAt(pIdx) = 0;
@@ -471,7 +478,7 @@ short Sandbox::clearColumnCurrent()
  *
  * \return Linear indexes of matching lattice sites.
  */
-std::vector<long long> Sandbox::findSitesLargerEqualHeight(short pHeight) const
+std::vector<long long> Sandbox::findSitesLargerEqualHeight(const short pHeight) const
 {
     std::vector<long long> sites;
 
@@ -730,7 +737,7 @@ const short& Sandbox::columnCurrent() const
  * \param pLinPos Linear index of a site on the sandbox lattice.
  * \return Reference to the lattice site at pLinPos.
  */
-short& Sandbox::columnAt(long long pLinPos)
+short& Sandbox::columnAt(const long long pLinPos)
 {
     return sBox[pLinPos];
 }
@@ -743,7 +750,7 @@ short& Sandbox::columnAt(long long pLinPos)
  * \param pLinPos Linear index of a site on the sandbox lattice.
  * \return Const reference to the lattice site at pLinPos.
  */
-const short& Sandbox::columnAt(long long pLinPos) const
+const short& Sandbox::columnAt(const long long pLinPos) const
 {
     return sBox[pLinPos];
 }

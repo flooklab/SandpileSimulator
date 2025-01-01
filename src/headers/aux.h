@@ -20,15 +20,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef AUX_H
-#define AUX_H
+#ifndef SANDSIM_AUX_H
+#define SANDSIM_AUX_H
 
-#include <iostream>
-#include <sstream>
+#include <algorithm>
+#include <cstdio>
+#include <random>
+#include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include <random>
 
 /*!
  * \brief Auxiliary class.
@@ -43,9 +44,9 @@ private:
 public:
     enum class Model        /// Enumeration of IDs of available simulation models.
     {
-        __INVALID_MODEL,    ///< Error code / invalid model.
-        _BTW,               ///< Bak-Tang-Wiesenfeld model (see SimulationModel_BTW).
-        _FWM                ///< A customized sandpile model, the FW model (see SimulationModel_FWM).
+        InvalidModel,       ///< Error code / invalid model.
+        BakTangWiesenfeld,  ///< Bak-Tang-Wiesenfeld model (see SimulationModel_BTW).
+        FrohneWolf          ///< A customized sandpile model, the FW model (see SimulationModel_FWM).
     };
 
 public:
@@ -67,10 +68,7 @@ public:
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
     static T vectorSum(const std::vector<T>& pVec)
     {
-        T retVal = 0;
-        for (T num : pVec)
-            retVal += num;
-        return retVal;
+        return std::accumulate(pVec.begin(), pVec.end(), T{0});
     }
     //
     /*!
@@ -81,7 +79,7 @@ public:
      * \param pNumber Number to be converted.
      */
     template<typename T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-    static std::string numberToStringScientific(T pNumber)      //Convert an arithmetic type to std::string in scientific notation
+    static std::string numberToStringScientific(const T pNumber)
     {
         char buf[15];
         std::snprintf(buf, 15, "%E", pNumber);
@@ -134,7 +132,7 @@ public:
      */
     template <typename FuncT, typename ... Args>
     static void recursiveForLoop(FuncT pFunction, const std::vector<short>& pLowerBounds, const std::vector<short>& pUpperBounds,
-                                 std::vector<short>& pCurrentSite, size_t pRecursionDepth, Args& ... pArgs)
+                                 std::vector<short>& pCurrentSite, const size_t pRecursionDepth, Args& ... pArgs)
     {
         if (pRecursionDepth > 0)
         {
@@ -179,4 +177,4 @@ namespace OpOverloads_STL_vector {
                                                                                                     /// of two STL vectors.
 }
 
-#endif // AUX_H
+#endif // SANDSIM_AUX_H

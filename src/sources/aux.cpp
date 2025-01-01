@@ -28,11 +28,11 @@
  * \brief Maps simulation model integer IDs to model strings
  *
  * Defines what is returned by getModelStringFromId() and getModelIdFromString().
- * See also Aux::MODEL.
+ * See also Aux::Model.
  */
 const std::unordered_map<Aux::Model, std::string> Aux::mapIdToStringMap = {
-    {Aux::Model::_BTW, "BTW"},
-    {Aux::Model::_FWM, "FWM"}
+    {Aux::Model::BakTangWiesenfeld, "BTW"},
+    {Aux::Model::FrohneWolf, "FWM"}
 };
 
 /*!
@@ -45,25 +45,16 @@ const std::unordered_map<Aux::Model, std::string> Aux::mapIdToStringMap = {
  * \param pModelId Unique integer/enum model ID.
  * \return Unique model string.
  */
-std::string Aux::getModelStringFromId(Model pModelId)
+std::string Aux::getModelStringFromId(const Model pModelId)
 {
     switch (pModelId)
     {
-        case Model::_BTW:
-        {
-            return mapIdToStringMap.at(Model::_BTW);
-            break;
-        }
-        case Model::_FWM:
-        {
-            return mapIdToStringMap.at(Model::_FWM);
-            break;
-        }
+        case Model::BakTangWiesenfeld:
+            return mapIdToStringMap.at(Model::BakTangWiesenfeld);
+        case Model::FrohneWolf:
+            return mapIdToStringMap.at(Model::FrohneWolf);
         default:
-        {
-            return mapIdToStringMap.at(Model::_BTW);
-            break;
-        }
+            return mapIdToStringMap.at(Model::BakTangWiesenfeld);
     }
 }
 
@@ -72,7 +63,7 @@ std::string Aux::getModelStringFromId(Model pModelId)
  *
  * Converts the unique model string of a specific implementation of SimulationModel to the corresponding unique integer/enum ID.
  *
- * If the provided string does not match any of the available models then Model::__INVALID_MODEL is returned.
+ * If the provided string does not match any of the available models then Model::InvalidModel is returned.
  *
  * \param pModelString Unique model string.
  * \return Unique integer model ID.
@@ -80,12 +71,12 @@ std::string Aux::getModelStringFromId(Model pModelId)
 Aux::Model Aux::getModelIdFromString(const std::string& pModelString)
 {
     //Search the predefined map for the model
-    for (auto pair : mapIdToStringMap)
+    for (const auto& pair : mapIdToStringMap)
         if (pModelString == pair.second)
             return pair.first;
 
     //Return error code if model not found
-    return Model::__INVALID_MODEL;
+    return Model::InvalidModel;
 }
 
 //

@@ -22,6 +22,10 @@
 
 #include "avalanche.h"
 
+#include "aux.h"
+
+#include <utility>
+
 /*!
  * \brief Constructor.
  *
@@ -162,7 +166,7 @@ void Avalanche::getSurface(std::vector<std::vector<short>>& pSurfacePoints) cons
      * only one point / no points will be added to \p surfPoints.
      */
     auto lFunc = [](std::vector<short> currentSite, const Sandbox& box, const std::map<long long, SiteAdditions>& pointsMap,
-                    std::vector<std::vector<short>>& surfPoints, int lower, int upper) -> void
+                    std::vector<std::vector<short>>& surfPoints, int lower, const int upper) -> void
     {
         //Search for "lower" surface point
         for (int i = lower; i < upper; ++i)

@@ -22,6 +22,13 @@
 
 #include "plotter.h"
 
+#include <array>
+#include <iostream>
+#include <new>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+
 /*!
  * \brief Constructor.
  *
@@ -73,7 +80,7 @@ Plotter::~Plotter()
  *
  * \throws std::runtime_error Not enough memory for required 2D slice shape.
  */
-void Plotter::init(unsigned int pFramerateLimit)
+void Plotter::init(const unsigned int pFramerateLimit)
 {
     framerateLimit = pFramerateLimit;
 
@@ -178,7 +185,7 @@ void Plotter::plotLoop()
     else
         shape.setSize(sf::Vector2f(2, 2));
 
-    std::string fontFileName = std::string(FONT_DEJAVU_DIR) + "/DejaVuSans.ttf";
+    std::string fontFileName = std::string(SANDSIM_FONT_DEJAVU_DIR) + "/DejaVuSans.ttf";
 
     sf::Font fnt;
     if (!fnt.loadFromFile(fontFileName))

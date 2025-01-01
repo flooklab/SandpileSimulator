@@ -20,12 +20,10 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef AVALANCHESTATISTICS_H
-#define AVALANCHESTATISTICS_H
+#ifndef SANDSIM_AVALANCHESTATISTICS_H
+#define SANDSIM_AVALANCHESTATISTICS_H
 
 #include <vector>
-
-#include "aux.h"
 
 /*!
  * \brief Collect statistics of sandpile avalanches.
@@ -48,10 +46,10 @@ public:
     struct Event;   //Forward declaration
 
 public:
-    AvalancheStatistics();          ///< Default constructor.
+    AvalancheStatistics() = default;    ///< Default constructor.
     //
-    Event& insert();                ///< Create a new event and include it in the statistics.
-    void insert(Event pEvent);      ///< Include the event in the statistics.
+    Event& insert();                    ///< Create a new event and include it in the statistics.
+    void insert(Event pEvent);          ///< Include the event in the statistics.
     //
     void detachEvents(std::vector<Event>& pDestination);    ///< Detach the collection of inserted events from this class's instance.
 
@@ -67,7 +65,7 @@ public:
      */
     struct Event
     {
-        long long _id = -1;     ///< (Consecutive) %Event ID.
+        long long id = -1;      ///< (Consecutive) %Event ID.
         long long size = -1;    ///< \brief Abstract "size" of the avalanche.
                                 ///  \details Number of critical lattice sites accumulated throughout
                                 ///           all iterations of the relaxation procedure.
@@ -105,4 +103,4 @@ public:
     };
 };
 
-#endif // AVALANCHESTATISTICS_H
+#endif // SANDSIM_AVALANCHESTATISTICS_H

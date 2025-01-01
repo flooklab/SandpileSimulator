@@ -20,11 +20,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef VERSION_H
-#define VERSION_H
+#ifndef SANDSIM_VERSION_H
+#define SANDSIM_VERSION_H
 
 #define SANDSIM_VERSION_MAJOR "0"
 #define SANDSIM_VERSION_MINOR "2"
 #define SANDSIM_VERSION_PATCH "0"
 
-#endif // VERSION_H
+#endif // SANDSIM_VERSION_H

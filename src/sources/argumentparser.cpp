@@ -22,6 +22,10 @@
 
 #include "argumentparser.h"
 
+#include <deque>
+#include <exception>
+#include <iostream>
+
 /*!
  * \brief Constructor.
  *
@@ -46,11 +50,11 @@
  * \throws std::invalid_argument Duplicate argument in \p pExpectedArguments.
  * \throws std::invalid_argument Invalid argument dependency or conflict.
  */
-ArgumentParser::ArgumentParser(const std::string& pProgName, int pArgc, const char *const *const pArgv,
-                               std::vector<Argument> pExpectedArgs, bool pAddHelpParam) :
+ArgumentParser::ArgumentParser(const std::string& pProgName, const int pArgc, const char *const *const pArgv,
+                               std::vector<Argument> pExpectedArgs, const bool pAddHelpParam) :
     progName(pProgName),
     args(pArgv, pArgv+pArgc),
-    expectedArgs(pExpectedArgs)
+    expectedArgs(std::move(pExpectedArgs))
 {
     if (pArgc < 1)
         throw std::invalid_argument("You are trying to execute the progam in some weird execution environment. Missing argv[0].");
@@ -61,7 +65,7 @@ ArgumentParser::ArgumentParser(const std::string& pProgName, int pArgc, const ch
 
     if (pAddHelpParam)
     {
-        expectedArgs.push_back(Argument(Argument::Type::_NONE, 'h', "help",
+        expectedArgs.push_back(Argument(Argument::Type::None, 'h', "help",
                                         "Print a description of the command line arguments of this program."));
     }
 
@@ -134,7 +138,7 @@ bool ArgumentParser::parseArgs()
             {
                 try
                 {
-                    std::stoi(arg);
+                    (void)std::stoi(arg);
                     tIsNumber = true;
                 }
                 catch (const std::exception&)
@@ -221,11 +225,11 @@ bool ArgumentParser::parseArgs()
 
         if (arg.withValue && parsedArgsWithValues.find(arg.shortExp) != parsedArgsWithValues.end())
         {
-            if (arg.type == Argument::Type::_INT)
+            if (arg.type == Argument::Type::Int)
             {
                 try
                 {
-                    std::stoi(parsedArgsWithValues.at(arg.shortExp));
+                    (void)std::stoi(parsedArgsWithValues.at(arg.shortExp));
                 }
                 catch (const std::exception&)
                 {
@@ -233,11 +237,11 @@ bool ArgumentParser::parseArgs()
                     return false;
                 }
             }
-            else if (arg.type == Argument::Type::_FLOAT)
+            else if (arg.type == Argument::Type::Float)
             {
                 try
                 {
-                    std::stod(parsedArgsWithValues.at(arg.shortExp));
+                    (void)std::stod(parsedArgsWithValues.at(arg.shortExp));
                 }
                 catch (const std::exception&)
                 {
@@ -300,12 +304,12 @@ void ArgumentParser::printUsage() const
  * Prints command line usage information (calls printUsage()) and then lists all available
  * command line arguments (shows short and long forms) together with a description for each one.
  *
- * For nicer formatting, all descriptions start with the same total indentation \p pLeftColumnLength.
+ * For nicer formatting, all descriptions start with the same total indentation \p pLeftColumnWidth.
  * If the short/long parameter name string exceeds this length, a new line is inserted before.
  *
- * \param pLeftColumnLength Common horizontal start position for all description strings.
+ * \param pLeftColumnWidth Common horizontal start position for all description strings.
  */
-void ArgumentParser::printHelp(size_t pLeftColumnLength) const
+void ArgumentParser::printHelp(const size_t pLeftColumnWidth) const
 {
     printUsage();
 
@@ -320,15 +324,15 @@ void ArgumentParser::printHelp(size_t pLeftColumnLength) const
 
         if (!arg.description.empty())
         {
-            if (currentLine.length() >= pLeftColumnLength)
+            if (currentLine.length() >= pLeftColumnWidth)
             {
                 currentLine.append("\n");
-                for (size_t i = 0; i < pLeftColumnLength; ++i)
+                for (size_t i = 0; i < pLeftColumnWidth; ++i)
                     currentLine.append(" ");
             }
             else
             {
-                for (auto i = currentLine.length(); i < pLeftColumnLength; ++i)
+                for (auto i = currentLine.length(); i < pLeftColumnWidth; ++i)
                     currentLine.append(" ");
             }
             currentLine.append(arg.description);
@@ -368,7 +372,7 @@ bool ArgumentParser::helpRequested() const
  * \param pDefault Default value.
  * \return Number of times the argument was entered (or \p pDefault).
  */
-int ArgumentParser::getParamCount(const std::string& pParamName, int pDefault) const
+int ArgumentParser::getParamCount(const std::string& pParamName, const int pDefault) const
 {
     if (longShortExpMap.find(pParamName) != longShortExpMap.end() &&
             parsedArgsFlags.find(longShortExpMap.at(pParamName)) != parsedArgsFlags.end())
@@ -390,7 +394,7 @@ int ArgumentParser::getParamCount(const std::string& pParamName, int pDefault) c
  * \param pDefault Default value.
  * \return Argument value (or \p pDefault) as string.
  */
-std::string ArgumentParser::getParamValue(const std::string& pParamName, std::string pDefault) const
+std::string ArgumentParser::getParamValue(const std::string& pParamName, const std::string pDefault) const
 {
     if (longShortExpMap.find(pParamName) != longShortExpMap.end() &&
             parsedArgsWithValues.find(longShortExpMap.at(pParamName)) != parsedArgsWithValues.end())
@@ -448,7 +452,7 @@ std::vector<std::string> ArgumentParser::getTrailingArgs() const
  *                   values are "floating" (discard) or "trailing" (remember).
  * \return If parsing of the argument group was successful.
  */
-bool ArgumentParser::unravelBunchOfArgs(const std::vector<std::string>& pBunch, bool pLastBunch)
+bool ArgumentParser::unravelBunchOfArgs(const std::vector<std::string>& pBunch, const bool pLastBunch)
 {
     std::deque<char> foundArgsWithValues;
     bool firstArg = true;

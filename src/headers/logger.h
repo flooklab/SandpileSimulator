@@ -20,16 +20,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef LOGGER_H
-#define LOGGER_H
+#ifndef SANDSIM_LOGGER_H
+#define SANDSIM_LOGGER_H
 
-#include <chrono>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <string>
 #include <omp.h>
+
+#include <fstream>
+#include <string>
 
 /*!
  * \brief Print log messages.
@@ -59,8 +56,8 @@ public:
     enum class LogLevel;    //Forward declaration
 
 public:
-    Logger(LogLevel pLogLevel = LogLevel::_INFO, const std::string& pLogFileName = ""); ///< Constructor.
-    ~Logger();                                                                          ///< Destructor.
+    explicit Logger(LogLevel pLogLevel = LogLevel::Info, const std::string& pLogFileName = "");     ///< Constructor.
+    ~Logger();                                                                                      ///< Destructor.
 
 public:
     /*!
@@ -70,16 +67,16 @@ public:
      */
     enum class LogLevel
     {
-        _NONE           =  0,   ///< Do not print any log messages.
-        _CRITICAL       = 10,   ///< Log critical errors only.
-        _ERROR          = 20,   ///< Log all errors.
-        _WARNING        = 30,   ///< Log also warnings.
-        _LESS           = 40,   ///< Log also important general notifications.
-        _INFO           = 50,   ///< Log also normal notifications. The default.
-        _MORE           = 60,   ///< Log also less important notifications.
-        _VERBOSE        = 70,   ///< Log even more notifications.
-        _DEBUG          = 80,   ///< Log also debug messages.
-        _DEBUG_DEBUG    = 90    ///< Log even more debug messages.
+        None       =  0,    ///< Do not print any log messages.
+        Critical   = 10,    ///< Log critical errors only.
+        Error      = 20,    ///< Log all errors.
+        Warning    = 30,    ///< Log also warnings.
+        Less       = 40,    ///< Log also important general notifications.
+        Info       = 50,    ///< Log also normal notifications. The default.
+        More       = 60,    ///< Log also less important notifications.
+        Verbose    = 70,    ///< Log even more notifications.
+        Debug      = 80,    ///< Log also debug messages.
+        DebugDebug = 90     ///< Log even more debug messages.
     };
 
 public:
@@ -89,17 +86,17 @@ public:
     static std::string logLevelToLabel(LogLevel pLogLevel);         ///< Get the label for a log level.
     static LogLevel labelToLogLevel(const std::string& pLogLevel);  ///< Get the log level from its label.
     //
-    void logCritical(const std::string& pMessage);      ///< Print a log message (LogLevel::_CRITICAL).
-    void logError(const std::string& pMessage);         ///< Print a log message (LogLevel::_ERROR).
-    void logWarning(const std::string& pMessage);       ///< Print a log message (LogLevel::_WARNING).
-    void logLess(const std::string& pMessage);          ///< Print a log message (LogLevel::_LESS).
-    void logInfo(const std::string& pMessage);          ///< Print a log message (LogLevel::_INFO).
-    void logMore(const std::string& pMessage);          ///< Print a log message (LogLevel::_MORE).
-    void logVerbose(const std::string& pMessage);       ///< Print a log message (LogLevel::_VERBOSE).
-    void logDebug(const std::string& pMessage);         ///< Print a log message (LogLevel::_DEBUG).
-    void logDebugDebug(const std::string& pMessage);    ///< Print a log message (LogLevel::_DEBUG_DEBUG).
+    void logCritical(const std::string& pMessage);      ///< Print a log message (LogLevel::Critical).
+    void logError(const std::string& pMessage);         ///< Print a log message (LogLevel::Error).
+    void logWarning(const std::string& pMessage);       ///< Print a log message (LogLevel::Warning).
+    void logLess(const std::string& pMessage);          ///< Print a log message (LogLevel::Less).
+    void logInfo(const std::string& pMessage);          ///< Print a log message (LogLevel::Info).
+    void logMore(const std::string& pMessage);          ///< Print a log message (LogLevel::More).
+    void logVerbose(const std::string& pMessage);       ///< Print a log message (LogLevel::Verbose).
+    void logDebug(const std::string& pMessage);         ///< Print a log message (LogLevel::Debug).
+    void logDebugDebug(const std::string& pMessage);    ///< Print a log message (LogLevel::DebugDebug).
     //
-    void log(const std::string& pMessage, LogLevel pLogLevel = LogLevel::_INFO);    ///< Print a log message.
+    void log(const std::string& pMessage, LogLevel pLogLevel = LogLevel::Info);     ///< Print a log message.
 
 private:
     void logMessage(const std::string& pMessage, const std::string& pLevelString);  ///< Format and print an arbitrary log message.
@@ -112,4 +109,4 @@ private:
     std::ofstream logFile;  //Log file
 };
 
-#endif // LOGGER_H
+#endif // SANDSIM_LOGGER_H

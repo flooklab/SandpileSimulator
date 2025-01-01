@@ -22,6 +22,8 @@
 
 #include "simulationmodel_btw.h"
 
+#include <cmath>
+
 /*!
  * \brief Constructor.
  *
@@ -47,7 +49,7 @@ SimulationModel_BTW::SimulationModel_BTW(Sandbox& pSandbox) :
  * \param pVal New value of the parameter.
  * \return True if the requested parameter is available and False else.
  */
-bool SimulationModel_BTW::setModelParameter(const std::string& pKey, int pVal)
+bool SimulationModel_BTW::setModelParameter(const std::string& pKey, const int pVal)
 {
     if (pKey == "BTW_drive_conservative")
     {

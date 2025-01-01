@@ -22,6 +22,14 @@
 
 #include "simulator.h"
 
+#include "simulationmodel_btw.h"
+#include "simulationmodel_fwm.h"
+
+#include <chrono>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
 /*!
  * \brief Construct a sandpile simulation for a certain type of simulation model and a sandbox of given shape.
  *
@@ -42,19 +50,19 @@
  *
  * \throws std::invalid_argument Invalid simulation model \p pModelId.
  */
-Simulator::Simulator(Aux::Model pModelId, std::vector<short> pShape, std::seed_seq& pSandboxSeedSeq,
+Simulator::Simulator(const Aux::Model pModelId, std::vector<short> pShape, std::seed_seq& pSandboxSeedSeq,
                      std::shared_ptr<Logger> pLogger) :
     sandbox(std::make_shared<Sandbox>(std::move(pShape), pSandboxSeedSeq)),
     stats(std::make_shared<AvalancheStatistics>()),
     model(nullptr),
-    logger(pLogger),
-#ifdef ENABLE_PLOTTER
+    logger(std::move(pLogger)),
+#ifdef SANDSIM_ENABLE_PLOTTER
     plotter(*sandbox),
-#endif // ENABLE_PLOTTER
+#endif // SANDSIM_ENABLE_PLOTTER
     plottingEnabled(false)
 {
     if (logger == nullptr)
-        logger = std::make_shared<Logger>(Logger::LogLevel::_INFO);
+        logger = std::make_shared<Logger>(Logger::LogLevel::Info);
 
     try
     {
@@ -86,14 +94,14 @@ Simulator::Simulator(std::shared_ptr<Sandbox> pSandbox, std::shared_ptr<Avalanch
     sandbox(std::move(pSandbox)),
     stats(std::move(pStatistics)),
     model(std::move(pSimulationModel)),
-    logger(pLogger),
-#ifdef ENABLE_PLOTTER
+    logger(std::move(pLogger)),
+#ifdef SANDSIM_ENABLE_PLOTTER
     plotter(*sandbox),
-#endif // ENABLE_PLOTTER
+#endif // SANDSIM_ENABLE_PLOTTER
     plottingEnabled(false)
 {
     if (logger == nullptr)
-        logger = std::make_shared<Logger>(Logger::LogLevel::_INFO);
+        logger = std::make_shared<Logger>(Logger::LogLevel::Info);
 }
 
 //Public
@@ -111,25 +119,16 @@ Simulator::Simulator(std::shared_ptr<Sandbox> pSandbox, std::shared_ptr<Avalanch
  *
  * \throws std::invalid_argument Invalid simulation model \p pModelId.
  */
-std::shared_ptr<SimulationModel> Simulator::createSimulationModel(Aux::Model pModelId, Sandbox& pSandbox)
+std::shared_ptr<SimulationModel> Simulator::createSimulationModel(const Aux::Model pModelId, Sandbox& pSandbox)
 {
     switch (pModelId)
     {
-        case Aux::Model::_BTW:
-        {
+        case Aux::Model::BakTangWiesenfeld:
             return std::make_shared<SimulationModel_BTW>(pSandbox);
-            break;
-        }
-        case Aux::Model::_FWM:
-        {
+        case Aux::Model::FrohneWolf:
             return std::make_shared<SimulationModel_FWM>(pSandbox, 8);
-            break;
-        }
         default:
-        {
             throw std::invalid_argument("The specified simulation model is not available!");
-            break;
-        }
     }
 }
 
@@ -185,9 +184,9 @@ std::shared_ptr<Logger> Simulator::getLogger()
  *
  * \param pFramerateLimit Maximal update frequency of displayed sandbox content.
  */
-void Simulator::enablePlotting(unsigned int pFramerateLimit)
+void Simulator::enablePlotting(const unsigned int pFramerateLimit)
 {
-#ifdef ENABLE_PLOTTER
+#ifdef SANDSIM_ENABLE_PLOTTER
     if (plottingEnabled)
         return;
 
@@ -196,7 +195,7 @@ void Simulator::enablePlotting(unsigned int pFramerateLimit)
 #else
     (void)pFramerateLimit;  //Suppress unused parameter warning
     logger->logWarning("Cannot enable plotting: Plotting feature has not been included in this build.");
-#endif // ENABLE_PLOTTER
+#endif // SANDSIM_ENABLE_PLOTTER
 }
 
 /*!
@@ -206,7 +205,7 @@ void Simulator::enablePlotting(unsigned int pFramerateLimit)
  */
 void Simulator::disablePlotting()
 {
-#ifdef ENABLE_PLOTTER
+#ifdef SANDSIM_ENABLE_PLOTTER
     if (!plottingEnabled)
         return;
 
@@ -214,7 +213,7 @@ void Simulator::disablePlotting()
     plotter.stopPlotting();
 #else
     logger->logWarning("Cannot disable plotting: Plotting feature has not been included in this build.");
-#endif // ENABLE_PLOTTER
+#endif // SANDSIM_ENABLE_PLOTTER
 }
 
 //
@@ -230,7 +229,7 @@ void Simulator::disablePlotting()
  *
  * \throws std::out_of_range \p pNumDrives is negative.
  */
-void Simulator::runSimulation(long long pNumDrives)
+void Simulator::runSimulation(const long long pNumDrives)
 {
     if (pNumDrives < 0)
         throw std::out_of_range("Number of drives/relaxations must not be negative!");

@@ -20,25 +20,24 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef SANDSIM_SIMULATOR_H
+#define SANDSIM_SIMULATOR_H
 
-#cmakedefine ENABLE_PLOTTER @ENABLE_PLOTTER@
+#cmakedefine SANDSIM_ENABLE_PLOTTER @SANDSIM_ENABLE_PLOTTER@
 
-#include <memory>
-#include <chrono>
-
-#include "noncopyable.h"
-#include "simulationmodel.h"
-#include "simulationmodel_btw.h"
-#include "simulationmodel_fwm.h"
-#include "sandbox.h"
 #include "avalanchestatistics.h"
 #include "logger.h"
+#include "noncopyable.h"
+#include "sandbox.h"
+#include "simulationmodel.h"
 
-#ifdef ENABLE_PLOTTER
+#ifdef SANDSIM_ENABLE_PLOTTER
 #include "plotter.h"
-#endif // ENABLE_PLOTTER
+#endif // SANDSIM_ENABLE_PLOTTER
+
+#include <memory>
+#include <random>
+#include <vector>
 
 /*!
  * \brief Simulation class that manages the sandpile simulation.
@@ -87,11 +86,11 @@ private:
     std::shared_ptr<AvalancheStatistics> stats;     //Statistics collector capturing the statistics of avalanches
     std::shared_ptr<SimulationModel> model;         //Model according to which the simulation behaves
     std::shared_ptr<Logger> logger;                 //For logging the progress and stuff
-#ifdef ENABLE_PLOTTER
+#ifdef SANDSIM_ENABLE_PLOTTER
     Plotter plotter;                                //Plots the sandpile
-#endif // ENABLE_PLOTTER
+#endif // SANDSIM_ENABLE_PLOTTER
     //
     bool plottingEnabled;                           //Plot the sandpile during the simulation using the plotter?
 };
 
-#endif // SIMULATOR_H
+#endif // SANDSIM_SIMULATOR_H

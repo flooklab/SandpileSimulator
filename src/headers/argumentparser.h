@@ -20,19 +20,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef ARGUMENTPARSER_H
-#define ARGUMENTPARSER_H
+#ifndef SANDSIM_ARGUMENTPARSER_H
+#define SANDSIM_ARGUMENTPARSER_H
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <deque>
+#include <cctype>
 #include <map>
 #include <set>
-#include <cctype>
 #include <stdexcept>
-#include <algorithm>
-
+#include <string>
+#include <utility>
+#include <vector>
 
 /*!
  * \brief Parse command line arguments.
@@ -54,7 +51,7 @@
  *
  * Parsing of the command line arguments must be triggered by parseArgs().
  * %Argument values can then be queried with getParamValue(). Switch-type arguments
- * (Argument::Type::_NONE) do not have values. They can be queried with getParamCount(),
+ * (Argument::Type::None) do not have values. They can be queried with getParamCount(),
  * which returns the number of occurrences of the argument instead.
  * For error handling see parseArgs().
  *
@@ -74,7 +71,7 @@ public:
     bool parseArgs();                                           ///< Parse command line arguments and remember values and counts.
     //
     void printUsage() const;                                                    ///< Print valid/possible command line calls.
-    void printHelp(size_t pLeftColumnLength = 8) const;                         ///< Print descriptions for all available arguments.
+    void printHelp(size_t pLeftColumnWidth = 8) const;                          ///< Print descriptions for all available arguments.
     //
     bool helpRequested() const;                                                 ///< Check, if a help switch was activated.
     //
@@ -103,7 +100,7 @@ public:
      * \brief Definition of a command line argument/parameter.
      *
      * Defines a command line argument with a short (e.g. "-a") and a long (e.g. "--param") parameter expression,
-     * a description of the argument, a value type (see Argument::Type; can be Type::_NONE for a "switch parameter")
+     * a description of the argument, a value type (see Argument::Type; can be Type::None for a "switch parameter")
      * and dependencies on other arguments. An argument can be mandatory or optional.
      *
      * Short parameter expressions (single char!) must not be a digit or a dash ('-')!
@@ -119,10 +116,10 @@ public:
          */
         enum class Type
         {
-            _NONE,          ///< Switch argument, which does not take a value.
-            _STRING,        ///< %Argument with string as value.
-            _INT,           ///< %Argument with integer as value.
-            _FLOAT          ///< %Argument with floating-point number as value.
+            None,       ///< Switch argument, which does not take a value.
+            String,     ///< %Argument with string as value.
+            Int,        ///< %Argument with integer as value.
+            Float       ///< %Argument with floating-point number as value.
         };
         //
         const Type type;                            //Value type of the argument
@@ -138,9 +135,9 @@ public:
         /*!
          * \brief Constructor.
          *
-         * Sets all argument properties (see also Argument). Member 'withValue' is set to true, iff \p pType is not Type::_NONE.
+         * Sets all argument properties (see also Argument). Member 'withValue' is set to true, iff \p pType is not Type::None.
          *
-         * Note: For a switch-type argument (\p pType == Type::_NONE) \p pOptional must be
+         * Note: For a switch-type argument (\p pType == Type::None) \p pOptional must be
          * true (mandatory switch does not make sense (in general)). After construction it can
          * however be manually set to false again e.g. in order to reflect an argument dependency.
          *
@@ -155,7 +152,7 @@ public:
          *
          * \throws std::invalid_argument \p pShortExp must not be a digit or '-'.
          * \throws std::invalid_argument "Value description" \p pUsage must not be empty,
-         *                               if argument requires value (\p pType not Type::_NONE).
+         *                               if argument requires value (\p pType not Type::None).
          * \throws std::invalid_argument Switch-type argument must be optional.
          */
         Argument(Type pType, char pShortExp, std::string pLongExp, std::string pDescription, std::string pUsage = "",
@@ -165,7 +162,7 @@ public:
             longExp(std::move(pLongExp)),
             usage(std::move(pUsage)),
             description(std::move(pDescription)),
-            withValue(type != Type::_NONE),
+            withValue(type != Type::None),
             optional(pOptional),
             dependencies(pDependencies),
             conflicts(pConflicts)
@@ -180,4 +177,4 @@ public:
     };
 };
 
-#endif // ARGUMENTPARSER_H
+#endif // SANDSIM_ARGUMENTPARSER_H

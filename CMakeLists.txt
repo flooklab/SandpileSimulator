@@ -6,8 +6,8 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose type of build (Debug or Release)")
 endif(NOT CMAKE_BUILD_TYPE)
 
-set(ENABLE_PLOTTER 0 CACHE BOOL "Build plotting class. Requires SFML 2.x!")
-set(BUILD_DOCUMENTATION 0 CACHE BOOL "Build documentation with Doxygen.")
+set(SANDSIM_ENABLE_PLOTTER 0 CACHE BOOL "Build plotting class. Requires SFML 2.x!")
+set(SANDSIM_BUILD_DOCUMENTATION 0 CACHE BOOL "Build documentation with Doxygen.")
 
 project(SandpileSimulator VERSION 0.2.0)
 
@@ -15,13 +15,13 @@ set(EXECUTABLE_NAME ${PROJECT_NAME})
 
 set(BUILD_SHARED_LIBS ON)
 
-if(BUILD_DOCUMENTATION)
+if(SANDSIM_BUILD_DOCUMENTATION)
     find_package(Doxygen)
 endif()
 
-if(ENABLE_PLOTTER)
+if(SANDSIM_ENABLE_PLOTTER)
     find_package(SFML 2 REQUIRED graphics system window)
-endif(ENABLE_PLOTTER)
+endif()
 
 set(FILENAMES
     argumentparser
@@ -55,9 +55,9 @@ endforeach(filename)
 foreach(filename ${FILENAMES_sfReq})
     set(FILENAMES ${FILENAMES} ${filename})
 
-    if(ENABLE_PLOTTER)
+    if(SANDSIM_ENABLE_PLOTTER)
         set(SOURCES "${SOURCES}" "${PROJECT_SOURCE_DIR}/src/sources/${filename}.cpp")
-    endif(ENABLE_PLOTTER)
+    endif(SANDSIM_ENABLE_PLOTTER)
 endforeach(filename)
 
 foreach(filename ${FILENAMES})
@@ -90,11 +90,11 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 
 set(LINKER_FLAGS_REQUIRED "-pthread -lgslcblas -lgsl -lm")
 
-if(ENABLE_PLOTTER)
+if(SANDSIM_ENABLE_PLOTTER)
     include_directories(${SFML_INCLUDE_DIR})
     target_link_libraries("${EXECUTABLE_NAME}-bin" ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
     set(LINKER_FLAGS_REQUIRED "${LINKER_FLAGS_REQUIRED} -lsfml-graphics -lsfml-system -lsfml-window")
-endif(ENABLE_PLOTTER)
+endif(SANDSIM_ENABLE_PLOTTER)
 
 set(LINKER_FLAGS_REQUIRED "${LINKER_FLAGS_REQUIRED}" CACHE STRING "Linker flags that are required to link the dependencies." FORCE)
 
@@ -120,7 +120,7 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} ${LINKER_FLAGS_REQUI
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} ${LINKER_FLAGS_REQUIRED}")
 
 
-if(BUILD_DOCUMENTATION AND DOXYGEN_FOUND)
+if(SANDSIM_BUILD_DOCUMENTATION AND DOXYGEN_FOUND)
   set(doxyfile_in "${PROJECT_SOURCE_DIR}/doc/Doxyfile.in")
   set(doxyfile "${PROJECT_BINARY_DIR}/Doxyfile")
   set(TEMPLATE_DIR "${PROJECT_SOURCE_DIR}/doc/template")
@@ -133,6 +133,6 @@ endif()
 install(TARGETS "${EXECUTABLE_NAME}-bin" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(TARGETS "${EXECUTABLE_NAME}-lib" LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(DIRECTORY "${PROJECT_BINARY_DIR}/include/" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
-if(BUILD_DOCUMENTATION AND DOXYGEN_FOUND)
+if(SANDSIM_BUILD_DOCUMENTATION AND DOXYGEN_FOUND)
     install(DIRECTORY "${PROJECT_BINARY_DIR}/doc/" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/doc")
 endif()

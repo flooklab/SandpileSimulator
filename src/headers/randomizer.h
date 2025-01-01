@@ -20,14 +20,11 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef RANDOMIZER_H
-#define RANDOMIZER_H
+#ifndef SANDSIM_RANDOMIZER_H
+#define SANDSIM_RANDOMIZER_H
 
 #include <random>
-#include <exception>
-
-#include "aux.h"
-#include "noncopyable.h"
+#include <vector>
 
 /*!
  * \brief Generate random sandbox lattice sites.
@@ -65,4 +62,4 @@ private:
     std::vector<std::uniform_int_distribution<short>> rndUnifVec;   //Generates uniformly distributed, integer random numbers (vectors)
 };
 
-#endif // RANDOMIZER_H
+#endif // SANDSIM_RANDOMIZER_H

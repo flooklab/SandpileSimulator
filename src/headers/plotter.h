@@ -20,21 +20,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef PLOTTER_H
-#define PLOTTER_H
+#ifndef SANDSIM_PLOTTER_H
+#define SANDSIM_PLOTTER_H
 
-#include <atomic>
-#include <thread>
-#include <functional>
-#include <sstream>
+#include "noncopyable.h"
+#include "sandbox.h"
 
 #include <SFML/Graphics.hpp>
 
-#include "noncopyable.h"
-#include "aux.h"
-#include "sandbox.h"
+#include <atomic>
+#include <memory>
+#include <thread>
+#include <vector>
 
-#define FONT_DEJAVU_DIR "/usr/share/fonts/TTF"
+#define SANDSIM_FONT_DEJAVU_DIR "/usr/share/fonts/TTF"
 
 /*!
  * \brief Visualize a sandpile during simulation.
@@ -60,7 +59,7 @@
 class Plotter : private NonCopyable
 {
 public:
-    Plotter(const Sandbox& pSandbox);           ///< Constructor.
+    explicit Plotter(const Sandbox& pSandbox);  ///< Constructor.
     ~Plotter();                                 ///< Destructor.
     //
     void init(unsigned int pFramerateLimit);    ///< Start a thread and setup a window for plotting the sandpile evolution.
@@ -84,4 +83,4 @@ private:
     sf::RectangleShape shape;                   //Simple rectangle object used to render/display each lattice site
 };
 
-#endif // PLOTTER_H
+#endif // SANDSIM_PLOTTER_H

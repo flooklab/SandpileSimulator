@@ -22,6 +22,16 @@
 
 #include "simulationmanager.h"
 
+#include "momentanalysis.h"
+#include "simulator.h"
+
+#include <chrono>
+#include <cmath>
+#include <deque>
+#include <omp.h>
+#include <sstream>
+#include <stdexcept>
+
 /*!
  * \brief Constructor.
  *
@@ -30,10 +40,10 @@
  * \param pLogger The Logger to be used for logging.
  */
 SimulationManager::SimulationManager(std::shared_ptr<Logger> pLogger) :
-    logger(pLogger)
+    logger(std::move(pLogger))
 {
     if (logger == nullptr)
-        logger = std::make_shared<Logger>(Logger::LogLevel::_INFO);
+        logger = std::make_shared<Logger>(Logger::LogLevel::Info);
 }
 
 //Public
@@ -91,14 +101,14 @@ std::shared_ptr<Logger> SimulationManager::getLogger()
  * \throws std::invalid_argument Invalid simulation model \p pSimModel.
  */
 void SimulationManager::runFullSimulation(const std::vector<std::pair<short, Sandbox>>& pCritSandboxes,
-                                          short pSandboxDim, Aux::Model pSimModel, std::seed_seq& pSeedSeq,
+                                          const short pSandboxDim, const Aux::Model pSimModel, std::seed_seq& pSeedSeq,
                                           std::map<short, std::vector<AvalancheStatistics::Moments>>& pSamplesPerSize_moments1,
                                           std::map<short, std::vector<AvalancheStatistics::Moments>>& pSamplesPerSize_moments2,
-                                          long long pNumDrives, int pNumSamples, bool pRecordArea, bool pRecordLinSize,
-                                          std::vector<std::pair<std::string, int>> pModelParameters,
-                                          int pNumThreads, bool pEnablePlotting) const
+                                          const long long pNumDrives, const int pNumSamples, const bool pRecordArea, const bool pRecordLinSize,
+                                          const std::vector<std::pair<std::string, int>> pModelParameters,
+                                          int pNumThreads, const bool pEnablePlotting) const
 {
-    if (pSimModel == Aux::Model::__INVALID_MODEL)
+    if (pSimModel == Aux::Model::InvalidModel)
     {
         logger->logCritical("The specified simulation model is not available!");
         throw std::invalid_argument("The specified simulation model is not available!");
@@ -257,11 +267,12 @@ void SimulationManager::runFullSimulation(const std::vector<std::pair<short, San
  *            if the sandbox state is approximately stationary!
  */
 void SimulationManager::makeSandboxesCritical(std::vector<std::pair<short, Sandbox>>& pSandboxes,
-                                              short pSandboxDim, long long pMinNumDrives, long long pMaxNumDrives,
-                                              long long pDrivesBunch, double pEpsilon, Aux::Model pSimModel, std::seed_seq& pSeedSeq,
-                                              std::vector<std::pair<std::string, int>> pModelParameters, bool pEnablePlotting) const
+                                              const short pSandboxDim, const long long pMinNumDrives, const long long pMaxNumDrives,
+                                              const long long pDrivesBunch, const double pEpsilon, const Aux::Model pSimModel,
+                                              std::seed_seq& pSeedSeq, const std::vector<std::pair<std::string, int>> pModelParameters,
+                                              const bool pEnablePlotting) const
 {
-    if (pSimModel == Aux::Model::__INVALID_MODEL)
+    if (pSimModel == Aux::Model::InvalidModel)
     {
         logger->logCritical("The specified simulation model is not available!");
         throw std::invalid_argument("The specified simulation model is not available!");
@@ -328,14 +339,13 @@ void SimulationManager::makeSandboxesCritical(std::vector<std::pair<short, Sandb
 
         long long totalNumDrives = 0;
 
-        double criticalityMovAv = 0;
         std::deque<double> criticalityDeque;
 
         //Measure time
         auto timeBeginBunch = std::chrono::high_resolution_clock::now();
 
         //Repeat simulation with small number of drives until sandbox is critical
-        for (double prevCriticalityMovAv = 0;;)
+        for (double criticalityMovAv = 0, prevCriticalityMovAv = 0;;)
         {
             timeBeginBunch = std::chrono::high_resolution_clock::now();
 

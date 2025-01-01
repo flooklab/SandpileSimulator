@@ -22,6 +22,8 @@
 
 #include "simulationmodel.h"
 
+#include <cmath>
+
 /*!
  * \brief Constructor.
  *
@@ -57,7 +59,7 @@ SimulationModel::SimulationModel(Sandbox& pSandbox) :
  *
  * \param pEnable True for enabled linSize calculation, False otherwise.
  */
-void SimulationModel::enableRecordLinSize(bool pEnable)
+void SimulationModel::enableRecordLinSize(const bool pEnable)
 {
     doLinSize = pEnable;
 }
@@ -75,7 +77,7 @@ void SimulationModel::enableRecordLinSize(bool pEnable)
  *
  * \param pEnable True for enabled area calculation, False otherwise.
  */
-void SimulationModel::enableRecordArea(bool pEnable)
+void SimulationModel::enableRecordArea(const bool pEnable)
 {
     doArea = pEnable;
 }

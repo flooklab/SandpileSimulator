@@ -22,6 +22,13 @@
 
 #include "logger.h"
 
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <ios>
+#include <iostream>
+#include <sstream>
+
 /*!
  * \brief Constructor.
  *
@@ -33,7 +40,7 @@
  * \param pLogLevel Log level to use for all log messages.
  * \param pLogFileName File name for the log file. Can be empty (no log file).
  */
-Logger::Logger(LogLevel pLogLevel, const std::string& pLogFileName) :
+Logger::Logger(const LogLevel pLogLevel, const std::string& pLogFileName) :
     logLevel(pLogLevel)
 {
     omp_init_lock(&logLock);
@@ -84,7 +91,7 @@ Logger::LogLevel Logger::getLogLevel() const
  *
  * \param pLogLevel New log level.
  */
-void Logger::setLogLevel(LogLevel pLogLevel)
+void Logger::setLogLevel(const LogLevel pLogLevel)
 {
     logLevel = pLogLevel;
 }
@@ -100,29 +107,29 @@ void Logger::setLogLevel(LogLevel pLogLevel)
  * \param pLogLevel The log level to get a label for.
  * \return The corresponding label for \p pLogLevel.
  */
-std::string Logger::logLevelToLabel(LogLevel pLogLevel)
+std::string Logger::logLevelToLabel(const LogLevel pLogLevel)
 {
     switch (pLogLevel)
     {
-        case LogLevel::_NONE:
+        case LogLevel::None:
             return "NONE";
-        case LogLevel::_CRITICAL:
+        case LogLevel::Critical:
             return "CRIT";
-        case LogLevel::_ERROR:
+        case LogLevel::Error:
             return "ERROR";
-        case LogLevel::_WARNING:
+        case LogLevel::Warning:
             return "WARNG";
-        case LogLevel::_LESS:
+        case LogLevel::Less:
             return "LESS";
-        case LogLevel::_INFO:
+        case LogLevel::Info:
             return "INFO";
-        case LogLevel::_MORE:
+        case LogLevel::More:
             return "MORE";
-        case LogLevel::_VERBOSE:
+        case LogLevel::Verbose:
             return "VERB";
-        case LogLevel::_DEBUG:
+        case LogLevel::Debug:
             return "DEBUG";
-        case LogLevel::_DEBUG_DEBUG:
+        case LogLevel::DebugDebug:
             return "DDBUG";
         default:
             return "INFO";
@@ -141,146 +148,146 @@ std::string Logger::logLevelToLabel(LogLevel pLogLevel)
 Logger::LogLevel Logger::labelToLogLevel(const std::string& pLogLevel)
 {
     if (pLogLevel == "NONE")
-        return LogLevel::_NONE;
+        return LogLevel::None;
     else if (pLogLevel == "CRIT")
-        return LogLevel::_CRITICAL;
+        return LogLevel::Critical;
     else if (pLogLevel == "ERROR")
-        return LogLevel::_ERROR;
+        return LogLevel::Error;
     else if (pLogLevel == "WARNG")
-        return LogLevel::_WARNING;
+        return LogLevel::Warning;
     else if (pLogLevel == "LESS")
-        return LogLevel::_LESS;
+        return LogLevel::Less;
     else if (pLogLevel == "INFO")
-        return LogLevel::_INFO;
+        return LogLevel::Info;
     else if (pLogLevel == "MORE")
-        return LogLevel::_MORE;
+        return LogLevel::More;
     else if (pLogLevel == "VERB")
-        return LogLevel::_VERBOSE;
+        return LogLevel::Verbose;
     else if (pLogLevel == "DEBUG")
-        return LogLevel::_DEBUG;
+        return LogLevel::Debug;
     else if (pLogLevel == "DDBUG")
-        return LogLevel::_DEBUG_DEBUG;
+        return LogLevel::DebugDebug;
     else
-        return LogLevel::_INFO;
+        return LogLevel::Info;
 }
 
 //
 
 /*!
- * \brief Print a log message (LogLevel::_CRITICAL).
+ * \brief Print a log message (LogLevel::Critical).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_CRITICAL.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Critical.
  *
  * \param pMessage The message to log.
  */
 void Logger::logCritical(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_CRITICAL)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_CRITICAL));
+    if (logLevel >= LogLevel::Critical)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Critical));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_ERROR).
+ * \brief Print a log message (LogLevel::Error).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_ERROR.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Error.
  *
  * \param pMessage The message to log.
  */
 void Logger::logError(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_ERROR)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_ERROR));
+    if (logLevel >= LogLevel::Error)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Error));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_WARNING).
+ * \brief Print a log message (LogLevel::Warning).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_WARNING.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Warning.
  *
  * \param pMessage The message to log.
  */
 void Logger::logWarning(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_WARNING)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_WARNING));
+    if (logLevel >= LogLevel::Warning)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Warning));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_LESS).
+ * \brief Print a log message (LogLevel::Less).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_LESS.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Less.
  *
  * \param pMessage The message to log.
  */
 void Logger::logLess(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_LESS)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_LESS));
+    if (logLevel >= LogLevel::Less)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Less));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_INFO).
+ * \brief Print a log message (LogLevel::Info).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_INFO.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Info.
  *
  * \param pMessage The message to log.
  */
 void Logger::logInfo(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_INFO)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_INFO));
+    if (logLevel >= LogLevel::Info)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Info));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_MORE).
+ * \brief Print a log message (LogLevel::More).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_MORE.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::More.
  *
  * \param pMessage The message to log.
  */
 void Logger::logMore(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_MORE)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_MORE));
+    if (logLevel >= LogLevel::More)
+        logMessage(pMessage, logLevelToLabel(LogLevel::More));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_VERBOSE).
+ * \brief Print a log message (LogLevel::Verbose).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_VERBOSE.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Verbose.
  *
  * \param pMessage The message to log.
  */
 void Logger::logVerbose(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_VERBOSE)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_VERBOSE));
+    if (logLevel >= LogLevel::Verbose)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Verbose));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_DEBUG).
+ * \brief Print a log message (LogLevel::Debug).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_DEBUG.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Debug.
  *
  * \param pMessage The message to log.
  */
 void Logger::logDebug(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_DEBUG)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_DEBUG));
+    if (logLevel >= LogLevel::Debug)
+        logMessage(pMessage, logLevelToLabel(LogLevel::Debug));
 }
 
 /*!
- * \brief Print a log message (LogLevel::_DEBUG_DEBUG).
+ * \brief Print a log message (LogLevel::Debug_DEBUG).
  *
- * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::_DEBUG_DEBUG.
+ * Prints log message \p pMessage, if the Logger's global log level is higher than or equal to LogLevel::Debug_DEBUG.
  *
  * \param pMessage The message to log.
  */
 void Logger::logDebugDebug(const std::string& pMessage)
 {
-    if (logLevel >= LogLevel::_DEBUG_DEBUG)
-        logMessage(pMessage, logLevelToLabel(LogLevel::_DEBUG_DEBUG));
+    if (logLevel >= LogLevel::DebugDebug)
+        logMessage(pMessage, logLevelToLabel(LogLevel::DebugDebug));
 }
 
 //
@@ -289,59 +296,59 @@ void Logger::logDebugDebug(const std::string& pMessage)
  * \brief Print a log message.
  *
  * Prints log message \p pMessage, if \p pLogLevel is lower than or equal to the Logger's global log level.
- * Message with \p pLogLevel LogLevel::_NONE will never be printed.
+ * Message with \p pLogLevel LogLevel::None will never be printed.
  *
  * \param pMessage The message to log.
  * \param pLogLevel The log level of \p pMessage.
  */
-void Logger::log(const std::string& pMessage, LogLevel pLogLevel)
+void Logger::log(const std::string& pMessage, const LogLevel pLogLevel)
 {
     if (pLogLevel > logLevel)
         return;
 
     switch(pLogLevel)
     {
-        case LogLevel::_CRITICAL:
+        case LogLevel::Critical:
         {
             logCritical(pMessage);
             break;
         }
-        case LogLevel::_ERROR:
+        case LogLevel::Error:
         {
             logError(pMessage);
             break;
         }
-        case LogLevel::_WARNING:
+        case LogLevel::Warning:
         {
             logWarning(pMessage);
             break;
         }
-        case LogLevel::_LESS:
+        case LogLevel::Less:
         {
             logLess(pMessage);
             break;
         }
-        case LogLevel::_INFO:
+        case LogLevel::Info:
         {
             logInfo(pMessage);
             break;
         }
-        case LogLevel::_MORE:
+        case LogLevel::More:
         {
             logMore(pMessage);
             break;
         }
-        case LogLevel::_VERBOSE:
+        case LogLevel::Verbose:
         {
             logVerbose(pMessage);
             break;
         }
-        case LogLevel::_DEBUG:
+        case LogLevel::Debug:
         {
             logDebug(pMessage);
             break;
         }
-        case LogLevel::_DEBUG_DEBUG:
+        case LogLevel::DebugDebug:
         {
             logDebugDebug(pMessage);
             break;

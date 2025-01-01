@@ -20,21 +20,20 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef SIMULATIONMANAGER_H
-#define SIMULATIONMANAGER_H
-
-#include <memory>
-#include <omp.h>
-#include <deque>
-#include <chrono>
-#include <sstream>
+#ifndef SANDSIM_SIMULATIONMANAGER_H
+#define SANDSIM_SIMULATIONMANAGER_H
 
 #include "aux.h"
+#include "avalanchestatistics.h"
 #include "logger.h"
 #include "sandbox.h"
-#include "simulator.h"
-#include "momentanalysis.h"
-#include "avalanchestatistics.h"
+
+#include <map>
+#include <memory>
+#include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 /*!
  * \brief Manages automatic simulation (and also "criticalization") of multiple sandboxes.
@@ -50,9 +49,9 @@
 class SimulationManager
 {
 public:
-    SimulationManager(std::shared_ptr<Logger> pLogger = nullptr);   ///< Constructor.
+    explicit SimulationManager(std::shared_ptr<Logger> pLogger = nullptr);  ///< Constructor.
     //
-    std::shared_ptr<Logger> getLogger();                            ///< Get the logger used for logging.
+    std::shared_ptr<Logger> getLogger();                                    ///< Get the logger used for logging.
     //
     /*!
      * \brief Perform repeated simulation runs for different lattice sizes to obtain avalanche observable distribution moment samples.
@@ -77,4 +76,4 @@ private:
     std::shared_ptr<Logger> logger;     //The logger
 };
 
-#endif // SIMULATIONMANAGER_H
+#endif // SANDSIM_SIMULATIONMANAGER_H

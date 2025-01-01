@@ -20,12 +20,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef SIMULATIONMODEL_FWM_H
-#define SIMULATIONMODEL_FWM_H
+#ifndef SANDSIM_SIMULATIONMODEL_FWM_H
+#define SANDSIM_SIMULATIONMODEL_FWM_H
 
 #include "aux.h"
-#include "simulationmodel.h"
+#include "avalanche.h"
 #include "avalanchestatistics.h"
+#include "sandbox.h"
+#include "simulationmodel.h"
+
+#include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 /*! \brief Implements a customized sandpile model of ours, the "FW model" (FWM).
  *
@@ -132,33 +139,34 @@
 class SimulationModel_FWM : public SimulationModel
 {
 public:
-    SimulationModel_FWM(Sandbox& pSandbox, short pCritSlope);       ///< Constructor.
-    virtual ~SimulationModel_FWM() = default;                       ///< Default destructor.
+    SimulationModel_FWM(Sandbox& pSandbox, short pCritSlope);           ///< Constructor.
+    ~SimulationModel_FWM() override = default;                          ///< Default destructor.
     //
-    virtual Aux::Model id() const { return Aux::Model::_FWM; }      ///< \brief Get an ID identifying the SimulationModel
-                                                                    ///         as defined in Aux::Model.
-                                                                    ///  \returns Aux::Model::_FWM.
+    Aux::Model id() const override { return Aux::Model::FrohneWolf; }   ///< \brief Get an ID identifying the SimulationModel
+                                                                        ///         as defined in Aux::Model.
+                                                                        ///  \returns Aux::Model::FrohneWolf.
     //
-    virtual void seed(std::seed_seq& pSeedSeq);     ///< Seed the random generator for initial topple direction randomization.
+    void seed(std::seed_seq& pSeedSeq) override;                    ///< Seed the random generator for initial topple direction randomization.
     //
-    virtual bool setModelParameter(const std::string& pKey, int pVal);                      ///< Set additional model parameters.
-    virtual bool getModelParameter(const std::string& pKey, int& pVal) const;               ///< Get additional model parameters.
-    virtual std::vector<std::pair<std::string, std::string>> listModelParameters() const;   ///< List available model parameters.
+    bool setModelParameter(const std::string& pKey, int pVal) override;                     ///< Set additional model parameters.
+    bool getModelParameter(const std::string& pKey, int& pVal) const override;              ///< Get additional model parameters.
+    std::vector<std::pair<std::string, std::string>> listModelParameters() const override;  ///< List available model parameters.
     //
-    virtual void drive() const;                                 ///< Drive the sandpile.
-    virtual void relax(AvalancheStatistics::Event& pEvent);     ///< Relax the sandpile.
+    void drive() const override;                                    ///< Drive the sandpile.
+    void relax(AvalancheStatistics::Event& pEvent) override;        ///< Relax the sandpile.
     //
-    virtual double calculateSandboxCriticality() const;         ///< Quantify the criticality of the sandbox.
+    double calculateSandboxCriticality() const override;            ///< Quantify the criticality of the sandbox.
 
 private:
-    virtual double calculateAvalancheLinSize(const Avalanche& pAvalanche) const;    ///< Calculate the linear size of an avalanche.
-    virtual long long calculateAvalancheArea(const Avalanche& pAvalanche) const;    ///< Calculate the area of an avalanche.
+    double calculateAvalancheLinSize(const Avalanche& pAvalanche) const override;   ///< Calculate the linear size of an avalanche.
+    long long calculateAvalancheArea(const Avalanche& pAvalanche) const override;   ///< Calculate the area of an avalanche.
 
 private:
     /*!
      * \brief Groups the position of a lattice site and if it is critical/unstable.
      */
-    struct LatticeSite {
+    struct LatticeSite
+    {
         std::vector<short> position;    //Cartesian position of the lattice site
         bool critical = false;          //Site is unstable?
     };
@@ -173,4 +181,4 @@ private:
     std::uniform_real_distribution<double> rndUnif;     //Generates unif. dist. numbers for randomly selecting initial drop neighbor
 };
 
-#endif // SIMULATIONMODEL_FWM_H
+#endif // SANDSIM_SIMULATIONMODEL_FWM_H

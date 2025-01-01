@@ -20,12 +20,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef AVALANCHE_H
-#define AVALANCHE_H
-
-#include <map>
+#ifndef SANDSIM_AVALANCHE_H
+#define SANDSIM_AVALANCHE_H
 
 #include "sandbox.h"
+
+#include <map>
+#include <vector>
 
 /*!
  * \brief Store an avalanche and characterize a few of its features.
@@ -47,7 +48,7 @@
 class Avalanche
 {
 public:
-    Avalanche(const Sandbox& pSandbox);             ///< Constructor.
+    explicit Avalanche(const Sandbox& pSandbox);    ///< Constructor.
     //
     void clear();                                   ///< Remove all previously added sites from the avalanche.
     void addSite(const std::vector<short>& pSite);  ///< Add a lattice site to the avalanche or increase it's addition count.
@@ -68,7 +69,8 @@ private:
     /*!
      * \brief Groups the position of a site and the number of times it was added to the avalanche.
      */
-    struct SiteAdditions {
+    struct SiteAdditions
+    {
         std::vector<short> position;    //Cartesian position of the avalanche site
         int numAdditions = 0;           //Number of additions for the same site
     };
@@ -76,4 +78,4 @@ private:
                                                         //together with the count of additions for the same sites
 };
 
-#endif // AVALANCHE_H
+#endif // SANDSIM_AVALANCHE_H

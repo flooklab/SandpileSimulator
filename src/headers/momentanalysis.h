@@ -20,22 +20,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef MOMENTANALYSIS_H
-#define MOMENTANALYSIS_H
+#ifndef SANDSIM_MOMENTANALYSIS_H
+#define SANDSIM_MOMENTANALYSIS_H
 
-#include <math.h>
-#include <random>
-#include <memory>
-#include <array>
-#include <vector>
-#include <tuple>
-#include <map>
-
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_linalg.h>
-
-#include "logger.h"
 #include "avalanchestatistics.h"
+#include "logger.h"
+
+#include <array>
+#include <map>
+#include <memory>
+#include <random>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 /*!
  * \brief Analyze power law scaling of an avalanche observable's dataset using moment analysis.
@@ -81,7 +78,8 @@ public:
      *
      * Contains the result in terms of means and uncertainties of the critical exponent and the observable dimension.
      */
-    struct Result {
+    struct Result
+    {
         double critExp_mean = 0;
         double critExp_std = 0;
         double critDim_mean = 0;
@@ -153,4 +151,4 @@ private:
                                                                                         /// moment samples for a single observable.
 };
 
-#endif // MOMENTANALYSIS_H
+#endif // SANDSIM_MOMENTANALYSIS_H

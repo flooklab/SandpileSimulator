@@ -22,6 +22,15 @@
 
 #include "momentanalysis.h"
 
+#include "aux.h"
+
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_linalg.h>
+
+#include <cmath>
+#include <string>
+#include <type_traits>
+
 //Public
 
 /*!
@@ -88,12 +97,12 @@
 struct MomentAnalysis::Result MomentAnalysis::doMomentAnalysis(std::map<short, MomentSample> pSamplesPerSize_moment1,
                                                                std::map<short, MomentSample> pSamplesPerSize_moment2,
                                                                std::array<std::vector<double>, 10>& pRawFitResults,
-                                                               int pNumBootstraps, int pNumInnerBootstraps,
+                                                               const int pNumBootstraps, const int pNumInnerBootstraps,
                                                                std::seed_seq& pSeedSeq1, std::seed_seq& pSeedSeq2,
-                                                               std::shared_ptr<Logger> pLogger, int pNumRNGThreads)
+                                                               std::shared_ptr<Logger> pLogger, const int pNumRNGThreads)
 {
     if (pLogger == nullptr)
-        pLogger = std::make_shared<Logger>(Logger::LogLevel::_INFO);
+        pLogger = std::make_shared<Logger>(Logger::LogLevel::Info);
 
     std::vector<double> fitSlopeSamples_moment1, fitSlopeSamples_moment2;
     std::vector<double> fitSlopeStdSamples_moment1, fitSlopeStdSamples_moment2;
@@ -106,7 +115,7 @@ struct MomentAnalysis::Result MomentAnalysis::doMomentAnalysis(std::map<short, M
     pLogger->logInfo("[1/2] Bootstrapped fitting for first moment...");
     pLogger->logInfo("");
 
-    generateBootstrappedFitSlopeSamplesFromMoments(pSamplesPerSize_moment1,
+    generateBootstrappedFitSlopeSamplesFromMoments(std::move(pSamplesPerSize_moment1),
                                                    fitSlopeSamples_moment1, fitSlopeStdSamples_moment1,
                                                    fitOffsetSamples_moment1, fitOffsetStdSamples_moment1,
                                                    fitSlopeOffsetCovSamples_moment1,
@@ -116,7 +125,7 @@ struct MomentAnalysis::Result MomentAnalysis::doMomentAnalysis(std::map<short, M
     pLogger->logInfo("[2/2] Bootstrapped fitting for second moment...");
     pLogger->logInfo("");
 
-    generateBootstrappedFitSlopeSamplesFromMoments(pSamplesPerSize_moment2,
+    generateBootstrappedFitSlopeSamplesFromMoments(std::move(pSamplesPerSize_moment2),
                                                    fitSlopeSamples_moment2, fitSlopeStdSamples_moment2,
                                                    fitOffsetSamples_moment2, fitOffsetStdSamples_moment2,
                                                    fitSlopeOffsetCovSamples_moment2,
@@ -305,7 +314,7 @@ std::pair<double, double> MomentAnalysis::calcMeanStdFromVector(const std::vecto
  * \param pSlope_moment2 Slope of double-log_e fit for distribution's second moment vs. lattice size.
  * \return Distribution's critical exponent.
  */
-double MomentAnalysis::calcCriticalExponent(double pSlope_moment1, double pSlope_moment2)
+double MomentAnalysis::calcCriticalExponent(const double pSlope_moment1, const double pSlope_moment2)
 {
     return 3.0 - pSlope_moment2 / (pSlope_moment2 - pSlope_moment1);
 }
@@ -321,8 +330,8 @@ double MomentAnalysis::calcCriticalExponent(double pSlope_moment1, double pSlope
  * \param pSlopeStd_moment2 Slope uncertainty of double-log_e fit for distribution's second moment vs. lattice size.
  * \return Uncertainty of distribution's critical exponent.
  */
-double MomentAnalysis::calcCriticalExponentUncertainty(double pSlope_moment1, double pSlopeStd_moment1,
-                                                       double pSlope_moment2, double pSlopeStd_moment2)
+double MomentAnalysis::calcCriticalExponentUncertainty(const double pSlope_moment1, const double pSlopeStd_moment1,
+                                                       const double pSlope_moment2, const double pSlopeStd_moment2)
 {
     return std::sqrt(std::pow(pSlopeStd_moment1 * pSlope_moment2, 2.) +
                      std::pow(pSlopeStd_moment2 * pSlope_moment1, 2.)) / std::pow(pSlope_moment1 - pSlope_moment2, 2.);
@@ -341,7 +350,7 @@ double MomentAnalysis::calcCriticalExponentUncertainty(double pSlope_moment1, do
  * \param pSlope_moment2 Slope of double-log_e fit for distribution's second moment vs. lattice size.
  * \return Distribution's observable dimension.
  */
-double MomentAnalysis::calcCriticalDimension(double pSlope_moment1, double pSlope_moment2)
+double MomentAnalysis::calcCriticalDimension(const double pSlope_moment1, const double pSlope_moment2)
 {
     return pSlope_moment2 - pSlope_moment1;
 }
@@ -355,7 +364,7 @@ double MomentAnalysis::calcCriticalDimension(double pSlope_moment1, double pSlop
  * \param pSlopeStd_moment2 Slope uncertainty of double-log_e fit for distribution's second moment vs. lattice size.
  * \return Uncertainty of distribution's observable dimension.
  */
-double MomentAnalysis::calcCriticalDimensionUncertainty(double pSlopeStd_moment1, double pSlopeStd_moment2)
+double MomentAnalysis::calcCriticalDimensionUncertainty(const double pSlopeStd_moment1, const double pSlopeStd_moment2)
 {
     return std::sqrt(pSlopeStd_moment1 * pSlopeStd_moment1 + pSlopeStd_moment2 * pSlopeStd_moment2);
 }
@@ -656,9 +665,9 @@ void MomentAnalysis::generateBootstrappedFitSlopeSamplesFromMoments(std::map<sho
                                                                     std::vector<double>& pFitOffsetSamples,
                                                                     std::vector<double>& pFitOffsetStdSamples,
                                                                     std::vector<double>& pFitSlopeOffsetCovSamples,
-                                                                    int pNumBootstraps, int pNumInnerBootstraps,
+                                                                    const int pNumBootstraps, const int pNumInnerBootstraps,
                                                                     std::seed_seq& pSeedSeq,
-                                                                    std::shared_ptr<Logger> pLogger, int pNumRNGThreads)
+                                                                    const std::shared_ptr<Logger> pLogger, const int pNumRNGThreads)
 {
     //Logarithmize moments such that linear fit can be applied
 

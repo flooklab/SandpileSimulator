@@ -20,14 +20,18 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef SIMULATIONMODEL_BTW_H
-#define SIMULATIONMODEL_BTW_H
-
-#include <set>
+#ifndef SANDSIM_SIMULATIONMODEL_BTW_H
+#define SANDSIM_SIMULATIONMODEL_BTW_H
 
 #include "aux.h"
-#include "simulationmodel.h"
+#include "avalanche.h"
 #include "avalanchestatistics.h"
+#include "sandbox.h"
+#include "simulationmodel.h"
+
+#include <string>
+#include <utility>
+#include <vector>
 
 /*! \brief Implements the Bak-Tang-Wiesenfeld (BTW) sandpile model.
  *
@@ -108,25 +112,25 @@
 class SimulationModel_BTW : public SimulationModel
 {
 public:
-    SimulationModel_BTW(Sandbox& pSandbox);     ///< Constructor.
-    virtual ~SimulationModel_BTW() = default;   ///< Default destructor.
+    explicit SimulationModel_BTW(Sandbox& pSandbox);    ///< Constructor.
+    ~SimulationModel_BTW() override = default;          ///< Default destructor.
     //
-    virtual Aux::Model id() const { return Aux::Model::_BTW; }      ///< \brief Get an ID identifying the SimulationModel
-                                                                    ///         as defined in Aux::Model.
-                                                                    ///  \returns Aux::Model::_BTW.
+    Aux::Model id() const override { return Aux::Model::BakTangWiesenfeld; }    ///< \brief Get an ID identifying the SimulationModel
+                                                                                ///         as defined in Aux::Model.
+                                                                                ///  \returns Aux::Model::BakTangWiesenfeld.
     //
-    virtual bool setModelParameter(const std::string& pKey, int pVal);                      ///< Set additional model parameters.
-    virtual bool getModelParameter(const std::string& pKey, int& pVal) const;               ///< Get additional model parameters.
-    virtual std::vector<std::pair<std::string, std::string>> listModelParameters() const;   ///< List available model parameters.
+    bool setModelParameter(const std::string& pKey, int pVal) override;                     ///< Set additional model parameters.
+    bool getModelParameter(const std::string& pKey, int& pVal) const override;              ///< Get additional model parameters.
+    std::vector<std::pair<std::string, std::string>> listModelParameters() const override;  ///< List available model parameters.
     //
-    virtual void drive() const;                                 ///< Drive the sandpile.
-    virtual void relax(AvalancheStatistics::Event& pEvent);     ///< Relax the sandpile.
+    void drive() const override;                                    ///< Drive the sandpile.
+    void relax(AvalancheStatistics::Event& pEvent) override;        ///< Relax the sandpile.
     //
-    virtual double calculateSandboxCriticality() const;         ///< Quantify the criticality of the sandbox.
+    double calculateSandboxCriticality() const override;            ///< Quantify the criticality of the sandbox.
 
 private:
-    virtual double calculateAvalancheLinSize(const Avalanche& pAvalanche) const;    ///< Calculate the linear size of an avalanche.
-    virtual long long calculateAvalancheArea(const Avalanche& pAvalanche) const;    ///< Calculate the area of an avalanche.
+    double calculateAvalancheLinSize(const Avalanche& pAvalanche) const override;   ///< Calculate the linear size of an avalanche.
+    long long calculateAvalancheArea(const Avalanche& pAvalanche) const  override;  ///< Calculate the area of an avalanche.
 
 private:
     bool conservativeDriving;   //Drive the sandpile "conservatively" (instead of the simpler non-conservative driving)?
@@ -134,4 +138,4 @@ private:
     const std::vector<short>& currentGrain;     //The random lattice site that was used in the most recent driving step
 };
 
-#endif // SIMULATIONMODEL_BTW_H
+#endif // SANDSIM_SIMULATIONMODEL_BTW_H

@@ -22,6 +22,9 @@
 
 #include "randomizer.h"
 
+#include <stdexcept>
+#include <utility>
+
 /*!
  * \brief Constructor.
  *

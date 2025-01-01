@@ -22,6 +22,9 @@
 
 #include "simulationmodel_fwm.h"
 
+#include <cmath>
+#include <map>
+
 /*!
  * \brief Constructor.
  *
@@ -29,7 +32,7 @@
  *
  * \param pCritSlope The value of the critical slope parameter q_crit (see also this class' documentation).
  */
-SimulationModel_FWM::SimulationModel_FWM(Sandbox& pSandbox, short pCritSlope) :
+SimulationModel_FWM::SimulationModel_FWM(Sandbox& pSandbox, const short pCritSlope) :
     SimulationModel(pSandbox),
     critSlope(pCritSlope),
     avalancheSizeMovedGrains(false),
@@ -67,7 +70,7 @@ void SimulationModel_FWM::seed(std::seed_seq& pSeedSeq)
  * \param pVal New value of the parameter.
  * \return True if the requested parameter is available and False else.
  */
-bool SimulationModel_FWM::setModelParameter(const std::string& pKey, int pVal)
+bool SimulationModel_FWM::setModelParameter(const std::string& pKey, const int pVal)
 {
     if (pKey == "FWM_criticalSlope")
     {

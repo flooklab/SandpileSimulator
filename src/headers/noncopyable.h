@@ -20,8 +20,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef NONCOPYABLE_H
-#define NONCOPYABLE_H
+#ifndef SANDSIM_NONCOPYABLE_H
+#define SANDSIM_NONCOPYABLE_H
 
 /*!
  * \brief Generic base class for creating non-copyable classes.
@@ -41,4 +41,4 @@ protected:
     NonCopyable& operator=(const NonCopyable&) = delete;    ///< Deleted assignment operator.
 };
 
-#endif // NONCOPYABLE_H
+#endif // SANDSIM_NONCOPYABLE_H

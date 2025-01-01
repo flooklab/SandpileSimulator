@@ -20,18 +20,16 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef SANDBOX_H
-#define SANDBOX_H
+#ifndef SANDSIM_SANDBOX_H
+#define SANDSIM_SANDBOX_H
 
-#include <vector>
-#include <array>
-#include <exception>
-#include <sstream>
-#include <fstream>
-#include <random>
-
-#include "aux.h"
 #include "randomizer.h"
+
+#include <array>
+#include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 /*!
  * \brief Class providing an interface to an n-dimensional sandbox.
@@ -119,4 +117,4 @@ private:
     Randomizer randomizer;                      //pRNG wrapper class for choosing random sandbox lattice sites
 };
 
-#endif // SANDBOX_H
+#endif // SANDSIM_SANDBOX_H

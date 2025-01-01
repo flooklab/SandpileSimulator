@@ -20,23 +20,35 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#include <sstream>
-#include <fstream>
-#include <memory>
-#include <vector>
-#include <map>
-#include <chrono>
-#include <functional>
-#include <random>
-
+#include "argumentparser.h"
 #include "aux.h"
+#include "avalanchestatistics.h"
 #include "logger.h"
+#include "momentanalysis.h"
 #include "simulationmanager.h"
 #include "simulationmodel.h"
 #include "simulationmodel_fwm.h"
-#include "avalanchestatistics.h"
-#include "momentanalysis.h"
-#include "argumentparser.h"
+#include "simulator.h"
+
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <cstdlib>
+#include <exception>
+#include <fstream>
+#include <functional>
+#include <ios>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <random>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 int main(int argc, const char** argv)
 {
@@ -49,7 +61,7 @@ int main(int argc, const char** argv)
 
     //Set default values before parsing command line arguments
 
-    std::string modelString = Aux::getModelStringFromId(Aux::Model::_BTW);
+    std::string modelString = Aux::getModelStringFromId(Aux::Model::BakTangWiesenfeld);
 
     std::string modelParams = "";   //Additional model-specific parameters
 
@@ -83,7 +95,7 @@ int main(int argc, const char** argv)
     std::string saveSandboxPrefix = "";     //Path and filename prefix to save sandboxes to (postfix defined by model and size)
     std::string saveResultsFileName = "";   //File name to save simulation results and moment analysis results to.
 
-    Logger::LogLevel logLevel = Logger::LogLevel::_INFO;    //Log level
+    Logger::LogLevel logLevel = Logger::LogLevel::Info;     //Log level
 
     std::string logFileName = "";                           //Save log output to this file name
 
@@ -97,125 +109,125 @@ int main(int argc, const char** argv)
         typedef ArgumentParser::Argument::Type Type;
 
         ArgumentParser argParser("SandpileSimulator", argc, argv,
-                                 {Argument(Type::_STRING, 'm',  "simulation-model",
-                                                                "The simulation model to be used.",
-                                                                "MODEL-ID",
-                                                                true),
-                                  Argument(Type::_STRING, 'p',  "model-parameters",
-                                                                "List of integer parameters specific to the used simulation model.",
-                                                                "PAR1=NUM1,PAR2=NUM2,...",
-                                                                true,
-                                                                {"simulation-model"}),
-                                  Argument(Type::_NONE,   'P',  "list-parameters",
-                                                                "List all model-specific parameters "
-                                                                "(for parameter \"--model-parameters\") and return.",
-                                                                "",
-                                                                true,
-                                                                {"simulation-model"}),
-                                  Argument(Type::_INT,    'd',  "sandbox-dimension",
-                                                                "Dimension of sandboxes for simulating DIM+1-dim. sandpiles.",
-                                                                "DIM",
-                                                                true),
-                                  Argument(Type::_INT,    'l',  "lower-length",
-                                                                "Minimal sandbox size to simulate (edge length of hypercube).",
-                                                                "LEN",
-                                                                true,
-                                                                {"upper-length"}),
-                                  Argument(Type::_INT,    'L',  "upper-length",
-                                                                "Maximal sandbox size to simulate (edge length of hypercube).",
-                                                                "LEN",
-                                                                true,
-                                                                {"lower-length"}),
-                                  Argument(Type::_INT,    'i',  "length-increment",
-                                                                "Step size of sandbox sizes.",
-                                                                "DELTA-LEN",
-                                                                true),
-                                  Argument(Type::_STRING, 'c',  "boundary-conditions",
-                                                                "Sandbox boundary conditions, c=closed, o=open "
-                                                                "(default is all closed). Example: "
-                                                                "2-dim. sandbox, all edges open except 2nd dim. upper edge: oooc.",
-                                                                "LULU...",
-                                                                true),
-                                  Argument(Type::_INT,    'n',  "drives",
-                                                                "Number of drives for every single simulation run.",
-                                                                "DRIVES",
-                                                                true),
-                                  Argument(Type::_INT,    'N',  "num-samples",
-                                                                "Number of repeated simulation runs for every lattice size.",
-                                                                "SAMPLES",
-                                                                true),
-                                  Argument(Type::_INT,    't',  "num-threads",
-                                                                "Number of parallel threads for i) main simulation and ii) random "
-                                                                "number generation for bootstrap sampling in moment analysis.",
-                                                                "THREADS",
-                                                                true),
-                                  Argument(Type::_NONE,   'C',  "make-critical",
-                                                                "Drive the sandboxes to state of SOC prior to simulation.",
-                                                                "",
-                                                                true),
-                                  Argument(Type::_STRING, 'Y',  "criticalization-parameters",
-                                                                "Parameters for automatic sandbox \"criticalization\", which "
-                                                                "determine \"criticality parameter\" saturation detection behavior. "
-                                                                "Default is '500000,1000*LEN^DIM,10000,1e-6'.",
-                                                                "MIN_NUM_DRIVES,MAX_NUM_DRIVES,DRIVES_PER_BUNCH,EPSILON",
-                                                                true,
-                                                                {"make-critical"}),
-                                  Argument(Type::_NONE,   'x',  "skip-simulation",
-                                                                "Skip the simulation and moment analysis. "
-                                                                "Use together with \"make-critical\".",
-                                                                "",
-                                                                true,
-                                                                {"make-critical"}),
-                                  Argument(Type::_NONE,   'a',  "do-moment-analysis",
-                                                                "Do moment analysis after all simulations have finished.",
-                                                                "",
-                                                                true),
-                                  Argument(Type::_INT,    'B',  "bootstrap-samples",
-                                                                "Number of (outer) bootstrap samples used in moment analysis.",
-                                                                "SAMPLES",
-                                                                true,
-                                                                {"do-moment-analysis", "inner-bootstraps"}),
-                                  Argument(Type::_INT,    'b',  "inner-bootstraps",
-                                                                "Number of inner bootstrap samples used for double bootstrap.",
-                                                                "SAMPLES",
-                                                                true,
-                                                                {"do-moment-analysis", "bootstrap-samples"}),
-                                  Argument(Type::_STRING, 'O',  "load-sandboxes",
-                                                                "Load the sandboxes before 'criticalization' / simulation. "
-                                                                "Expected filename postfix format: \"_size_LENxLENx..."
-                                                                "_model_MODEL-ID_params_PAR1=NUM1,PAR2=NUM2,....sbx\".",
-                                                                "FILENAME-PREFIX",
-                                                                true),
-                                  Argument(Type::_STRING, 'S',  "save-sandboxes",
-                                                                "Save the sandboxes after 'criticalization' / simulation. "
-                                                                "File name postfix format: \"_size_LENxLENx..."
-                                                                "_model_MODEL-ID_params_PAR1=NUM1,PAR2=NUM2,....sbx\".",
-                                                                "FILENAME-PREFIX",
-                                                                true),
-                                  Argument(Type::_STRING, 's',  "save-results",
-                                                                "Save the moment samples from simulation and the final results "
-                                                                "from moment analysis.",
-                                                                "FILENAME",
-                                                                true),
-                                  Argument(Type::_STRING, 'v',  "log-level",
-                                                                "Global log level (verbosity) of the log output.",
-                                                                "NONE|CRIT|ERROR|WARNG|LESS|INFO|MORE|VERB|DEBUG|DDBUG",
-                                                                true),
-                                  Argument(Type::_STRING, 'f',  "log-file",
-                                                                "Write the program output to a log file.",
-                                                                "FILENAME",
-                                                                true),
-                                  Argument(Type::_NONE,   'G',  "enable-plotting",
-                                                                "Enable visualization of sandpiles during all simulations. "
-                                                                "Requires a maximum threads count of 1 (\"--num-threads=1\").",
-                                                                "",
-                                                                true),
-                                  Argument(Type::_INT,    'r',  "seed",
-                                                                "Seed for main random generator used to seed all random generators. "
-                                                                "If the seed is not set or a negative seed is provided, "
-                                                                "a random device is used for seeding.",
-                                                                "UNSIGNED_SEED",
-                                                                true)},
+                                 {Argument(Type::String, 'm', "simulation-model",
+                                                              "The simulation model to be used.",
+                                                              "MODEL-ID",
+                                                              true),
+                                  Argument(Type::String, 'p', "model-parameters",
+                                                              "List of integer parameters specific to the used simulation model.",
+                                                              "PAR1=NUM1,PAR2=NUM2,...",
+                                                              true,
+                                                              {"simulation-model"}),
+                                  Argument(Type::None,   'P', "list-parameters",
+                                                              "List all model-specific parameters "
+                                                              "(for parameter \"--model-parameters\") and return.",
+                                                              "",
+                                                              true,
+                                                              {"simulation-model"}),
+                                  Argument(Type::Int,    'd', "sandbox-dimension",
+                                                              "Dimension of sandboxes for simulating DIM+1-dim. sandpiles.",
+                                                              "DIM",
+                                                              true),
+                                  Argument(Type::Int,    'l', "lower-length",
+                                                              "Minimal sandbox size to simulate (edge length of hypercube).",
+                                                              "LEN",
+                                                              true,
+                                                              {"upper-length"}),
+                                  Argument(Type::Int,    'L', "upper-length",
+                                                              "Maximal sandbox size to simulate (edge length of hypercube).",
+                                                              "LEN",
+                                                              true,
+                                                              {"lower-length"}),
+                                  Argument(Type::Int,    'i', "length-increment",
+                                                              "Step size of sandbox sizes.",
+                                                              "DELTA-LEN",
+                                                              true),
+                                  Argument(Type::String, 'c', "boundary-conditions",
+                                                              "Sandbox boundary conditions, c=closed, o=open "
+                                                              "(default is all closed). Example: "
+                                                              "2-dim. sandbox, all edges open except 2nd dim. upper edge: oooc.",
+                                                              "LULU...",
+                                                              true),
+                                  Argument(Type::Int,    'n', "drives",
+                                                              "Number of drives for every single simulation run.",
+                                                              "DRIVES",
+                                                              true),
+                                  Argument(Type::Int,    'N', "num-samples",
+                                                              "Number of repeated simulation runs for every lattice size.",
+                                                              "SAMPLES",
+                                                              true),
+                                  Argument(Type::Int,    't', "num-threads",
+                                                              "Number of parallel threads for i) main simulation and ii) random "
+                                                              "number generation for bootstrap sampling in moment analysis.",
+                                                              "THREADS",
+                                                              true),
+                                  Argument(Type::None,   'C', "make-critical",
+                                                              "Drive the sandboxes to state of SOC prior to simulation.",
+                                                              "",
+                                                              true),
+                                  Argument(Type::String, 'Y', "criticalization-parameters",
+                                                              "Parameters for automatic sandbox \"criticalization\", which "
+                                                              "determine \"criticality parameter\" saturation detection behavior. "
+                                                              "Default is '500000,1000*LEN^DIM,10000,1e-6'.",
+                                                              "MIN_NUM_DRIVES,MAX_NUM_DRIVES,DRIVES_PER_BUNCH,EPSILON",
+                                                              true,
+                                                              {"make-critical"}),
+                                  Argument(Type::None,   'x', "skip-simulation",
+                                                              "Skip the simulation and moment analysis. "
+                                                              "Use together with \"make-critical\".",
+                                                              "",
+                                                              true,
+                                                              {"make-critical"}),
+                                  Argument(Type::None,   'a', "do-moment-analysis",
+                                                              "Do moment analysis after all simulations have finished.",
+                                                              "",
+                                                              true),
+                                  Argument(Type::Int,    'B', "bootstrap-samples",
+                                                              "Number of (outer) bootstrap samples used in moment analysis.",
+                                                              "SAMPLES",
+                                                              true,
+                                                              {"do-moment-analysis", "inner-bootstraps"}),
+                                  Argument(Type::Int,    'b', "inner-bootstraps",
+                                                              "Number of inner bootstrap samples used for double bootstrap.",
+                                                              "SAMPLES",
+                                                              true,
+                                                              {"do-moment-analysis", "bootstrap-samples"}),
+                                  Argument(Type::String, 'O', "load-sandboxes",
+                                                              "Load the sandboxes before 'criticalization' / simulation. "
+                                                              "Expected filename postfix format: \"_size_LENxLENx..."
+                                                              "_model_MODEL-ID_params_PAR1=NUM1,PAR2=NUM2,....sbx\".",
+                                                              "FILENAME-PREFIX",
+                                                              true),
+                                  Argument(Type::String, 'S', "save-sandboxes",
+                                                              "Save the sandboxes after 'criticalization' / simulation. "
+                                                              "File name postfix format: \"_size_LENxLENx..."
+                                                              "_model_MODEL-ID_params_PAR1=NUM1,PAR2=NUM2,....sbx\".",
+                                                              "FILENAME-PREFIX",
+                                                              true),
+                                  Argument(Type::String, 's', "save-results",
+                                                              "Save the moment samples from simulation and the final results "
+                                                              "from moment analysis.",
+                                                              "FILENAME",
+                                                              true),
+                                  Argument(Type::String, 'v', "log-level",
+                                                              "Global log level (verbosity) of the log output.",
+                                                              "NONE|CRIT|ERROR|WARNG|LESS|INFO|MORE|VERB|DEBUG|DDBUG",
+                                                              true),
+                                  Argument(Type::String, 'f', "log-file",
+                                                              "Write the program output to a log file.",
+                                                              "FILENAME",
+                                                              true),
+                                  Argument(Type::None,   'G', "enable-plotting",
+                                                              "Enable visualization of sandpiles during all simulations. "
+                                                              "Requires a maximum threads count of 1 (\"--num-threads=1\").",
+                                                              "",
+                                                              true),
+                                  Argument(Type::Int,    'r', "seed",
+                                                              "Seed for main random generator used to seed all random generators. "
+                                                              "If the seed is not set or a negative seed is provided, "
+                                                              "a random device is used for seeding.",
+                                                              "UNSIGNED_SEED",
+                                                              true)},
                                   true);
 
         if (!argParser.parseArgs())
@@ -285,7 +297,7 @@ int main(int argc, const char** argv)
 
         //Check variables
 
-        if (Aux::getModelIdFromString(modelString) == Aux::Model::__INVALID_MODEL)
+        if (Aux::getModelIdFromString(modelString) == Aux::Model::InvalidModel)
             throw std::invalid_argument("The specified simulation model is not available!");
 
         if (sandboxDim <= 0)
@@ -379,8 +391,6 @@ int main(int argc, const char** argv)
 
         return EXIT_SUCCESS;
     }
-
-    std::map<short, std::vector<AvalancheStatistics::Moments>> samplesPerSize_moments1, samplesPerSize_moments2;
 
     std::vector<std::pair<short, Sandbox>> critSandboxes;
     std::map<short, std::string> loadSandboxFileNames, saveSandboxFileNames;
@@ -581,6 +591,8 @@ int main(int argc, const char** argv)
         timeBeginSim = std::chrono::high_resolution_clock::now();
 
         std::seed_seq tSeedSeqSim = Aux::generateSeedSeq(mainRndGenerator);
+
+        std::map<short, std::vector<AvalancheStatistics::Moments>> samplesPerSize_moments1, samplesPerSize_moments2;
 
         //Actual simulation(s) for collecting avalanche statistics
         simulationManager.runFullSimulation(critSandboxes, sandboxDim, modelId, tSeedSeqSim,

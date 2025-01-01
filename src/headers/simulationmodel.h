@@ -20,16 +20,19 @@
 ////////////////////////////////////////////////////////////////////////////////////////
 */
 
-#ifndef SIMULATIONMODEL_H
-#define SIMULATIONMODEL_H
+#ifndef SANDSIM_SIMULATIONMODEL_H
+#define SANDSIM_SIMULATIONMODEL_H
 
-#include <random>
-#include <vector>
-
+#include "aux.h"
+#include "avalanche.h"
+#include "avalanchestatistics.h"
 #include "noncopyable.h"
 #include "sandbox.h"
-#include "avalanchestatistics.h"
-#include "avalanche.h"
+
+#include <random>
+#include <string>
+#include <utility>
+#include <vector>
 
 /*! \brief Characterizes/models the dynamics of a sandpile.
  *
@@ -63,7 +66,7 @@
 class SimulationModel : private NonCopyable
 {
 public:
-    SimulationModel(Sandbox& pSandbox);             ///< Constructor.
+    explicit SimulationModel(Sandbox& pSandbox);    ///< Constructor.
     virtual ~SimulationModel() = default;           ///< Default destructor.
     //
     virtual Aux::Model id() const = 0;              ///< \brief Get an ID identifying the SimulationModel
@@ -81,7 +84,8 @@ public:
      * \brief Seed any random generators that may be part of a specific model implementation.
      * \param pSeedSeq The seed sequence used to seed everything (in a fixed order).
      */
-    virtual void seed(std::seed_seq& pSeedSeq) {
+    virtual void seed(std::seed_seq& pSeedSeq)
+    {
         (void)pSeedSeq; //Suppress unused parameter warning
         return;
     }
@@ -102,7 +106,8 @@ public:
      * \param pVal New value of the parameter.
      * \return True if the model provides the requested parameter and False else.
      */
-    virtual bool setModelParameter(const std::string& pKey, int pVal) {
+    virtual bool setModelParameter(const std::string& pKey, const int pVal)
+    {
         (void)pKey; //Suppress unused parameter warning
         (void)pVal; //Suppress unused parameter warning
         return false;
@@ -125,7 +130,8 @@ public:
      * \param pVal Value of the parameter.
      * \return True if the model provides the requested parameter and False else.
      */
-    virtual bool getModelParameter(const std::string& pKey, int& pVal) const {
+    virtual bool getModelParameter(const std::string& pKey, int& pVal) const
+    {
         (void)pKey; //Suppress unused parameter warning
         (void)pVal; //Suppress unused parameter warning
         return false;
@@ -144,7 +150,8 @@ public:
      *
      * \return List of available model parameters as pairs of {"NAME", "DESCRIPTION"}.
      */
-    virtual std::vector<std::pair<std::string, std::string>> listModelParameters() const {
+    virtual std::vector<std::pair<std::string, std::string>> listModelParameters() const
+    {
         return {};
     }
     //
@@ -193,4 +200,4 @@ protected:
     bool doArea;        //Calculate area for every avalanche event? (default: false)
 };
 
-#endif // SIMULATIONMODEL_H
+#endif // SANDSIM_SIMULATIONMODEL_H
