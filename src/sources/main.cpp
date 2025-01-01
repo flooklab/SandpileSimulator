@@ -446,7 +446,7 @@ int main(int argc, const char** argv)
     {
         //Create sandbox; use empty seed sequence since we need to set different seed for each sample later either way
         std::seed_seq tmpSeedSeq {};
-        Sandbox tSandbox(std::vector<short>(sandboxDim, len), tSeedSeq);
+        Sandbox tSandbox(std::vector<short>(sandboxDim, len), tmpSeedSeq);
 
         //Load (critical) sandbox
         if (loadSandboxPrefix != "")
