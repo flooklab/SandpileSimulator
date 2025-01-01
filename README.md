@@ -26,7 +26,7 @@ Notes:
 
 ## License information
 
-Copyright (C) 2021 M. Frohne
+Copyright (C) 2021, 2025 M. Frohne
 
 Sandpile Simulator is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published
