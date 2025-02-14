@@ -26,7 +26,8 @@
 #include "noncopyable.h"
 #include "sandbox.h"
 
-#include <SFML/Graphics.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 
 #include <atomic>
 #include <memory>

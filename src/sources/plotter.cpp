@@ -22,9 +22,18 @@
 
 #include "plotter.h"
 
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/Font.hpp>
+#include <SFML/Graphics/Text.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/String.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/VideoMode.hpp>
+
 #include <array>
 #include <iostream>
 #include <new>
+#include <optional>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -101,7 +110,7 @@ void Plotter::init(const unsigned int pFramerateLimit)
         window = std::make_unique<sf::RenderWindow>();
 
     if (!window->isOpen())
-        window->create(sf::VideoMode(800, 600), sf::String("Sandpile Simulator - Sandbox Plot"));
+        window->create(sf::VideoMode({800, 600}), sf::String("Sandpile Simulator - Sandbox Plot"));
 
     window->setFramerateLimit(framerateLimit);
     window->setVerticalSyncEnabled(false);
@@ -185,16 +194,14 @@ void Plotter::plotLoop()
     if (oneDimPlot)
         shape.setFillColor(sf::Color(255., 255., 255.));
     else
-        shape.setSize(sf::Vector2f(2, 2));
+        shape.setSize({2, 2});
 
     std::string fontFileName = std::string(SANDSIM_FONT_DEJAVU_DIR) + "/DejaVuSans.ttf";
 
     sf::Font fnt;
-    if (!fnt.loadFromFile(fontFileName))
+    if (!fnt.openFromFile(fontFileName))
         std::cerr<<"WARNING: Could not load font from file \""<<fontFileName<<"\"!\n";
-    sf::Text txt(sf::String(), fnt);
-
-    sf::Event event;
+    sf::Text txt(fnt, sf::String());
 
     sf::Clock clk;
     double frRt = 0, frRt2 = 0, frRt3 = 0, frRt4 = 0;
@@ -203,22 +210,17 @@ void Plotter::plotLoop()
 
     while (plotThreadRunning && window->isOpen())
     {
-        while(window->pollEvent(event))
+        while (const std::optional<sf::Event> event = window->pollEvent())
         {
-            switch (event.type)
+            if (event->is<sf::Event::Closed>())
             {
-                case sf::Event::Closed:
-                {
-                    window->close();
-                    plotThreadRunning = false;
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
+                window->close();
+                plotThreadRunning = false;
+                break;
             }
         }
+        if (!plotThreadRunning)
+            break;
 
         updatePlotData();
 
@@ -239,8 +241,8 @@ void Plotter::plotLoop()
             {
                 for (short height = 0; height < plotData2d[0][j]; ++height)
                 {
-                    shape.setPosition(50+j, 550-height*scaleFactor);
-                    shape.setSize(sf::Vector2f(1, height*scaleFactor));
+                    shape.setPosition({50.f + j, 550.f - static_cast<float>(height*scaleFactor)});
+                    shape.setSize({1.f, static_cast<float>(height*scaleFactor)});
                     window->draw(shape);
                 }
             }
@@ -279,7 +281,7 @@ void Plotter::plotLoop()
                                                   254.-((currentHeight-lowerHeightLimit)*254./(upperHeightLimit-lowerHeightLimit))
                                                   );
 
-                    shape.setPosition(50+2*j, 50+2*i);
+                    shape.setPosition({50.f + 2*j, 50.f + 2*i});
                     shape.setFillColor(sf::Color(colorVal, 0, colorVal2));
                     window->draw(shape);
                 }
