@@ -150,7 +150,7 @@ if(SANDSIM_BUILD_DOCUMENTATION AND DOXYGEN_FOUND)
     set(HEADERS_DIR "${PROJECT_BINARY_DIR}/include")
     set(SOURCES_DIR "${PROJECT_SOURCE_DIR}/src/sources")
     configure_file("${doxyfile_in}" "${doxyfile}" @ONLY)
-    add_custom_target(Documentation ALL ${DOXYGEN_EXECUTABLE} "${doxyfile}" WORKING_DIRECTORY "${PROJECT_BINARY_DIR}" VERBATIM)
+    add_custom_target(Documentation ALL Doxygen::doxygen "${doxyfile}" WORKING_DIRECTORY "${PROJECT_BINARY_DIR}" VERBATIM)
 endif()
 
 install(TARGETS "${EXECUTABLE_NAME}-bin" RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
