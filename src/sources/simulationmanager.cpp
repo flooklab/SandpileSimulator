@@ -25,10 +25,11 @@
 #include "momentanalysis.h"
 #include "simulator.h"
 
+#include <omp.h>
+
 #include <chrono>
 #include <cmath>
 #include <deque>
-#include <omp.h>
 #include <sstream>
 #include <stdexcept>
 
