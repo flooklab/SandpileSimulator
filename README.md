@@ -20,9 +20,13 @@ However, some implementation and model details might differ (see this project's 
 
 Building the project can be configured with [CMake](https://cmake.org/).
 
-Notes:
-- Building the documentation requires [Doxygen](https://github.com/doxygen/doxygen) (optional).
-- Enabling the feature for visualization of sandpiles requires [SFML](https://github.com/SFML/SFML) (optional).
+Required dependencies:
+- [OpenMP](https://www.openmp.org/) library for parallelization
+- [GNU Scientific Library (GSL)](https://www.gnu.org/software/gsl/) for matrix calculations in the moment analysis
+
+Optional dependencies:
+- Building the documentation requires [Doxygen](https://github.com/doxygen/doxygen) (>= v1.9)
+- Enabling the feature for visualization of sandpiles requires [SFML](https://github.com/SFML/SFML) (>= v3.0).
 
 ## License information
 
