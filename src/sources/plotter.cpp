@@ -31,7 +31,9 @@
 #include <SFML/Window/VideoMode.hpp>
 
 #include <array>
+#include <cstdint>
 #include <iostream>
+#include <limits>
 #include <new>
 #include <optional>
 #include <sstream>
@@ -300,7 +302,7 @@ void Plotter::plotLoop()
         frRt2 = tFr;
         std::ostringstream sst;
         sst<<"Frame Rate: "<<static_cast<int>(frRt)<<"fps\t"<<"Fill Status (plotted slice):\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
-                                                            <<upperHeightLimit<<"/"<<INT16_MAX;
+                                                            <<upperHeightLimit<<"/"<<std::numeric_limits<std::int16_t>::max();
         txt.setString(sst.str());
         window->draw(txt);
 
