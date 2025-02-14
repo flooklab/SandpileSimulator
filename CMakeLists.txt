@@ -31,7 +31,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 set(SANDSIM_ENABLE_PLOTTER 0 CACHE BOOL "Build plotting class. Requires SFML 2.x!")
 set(SANDSIM_BUILD_DOCUMENTATION 0 CACHE BOOL "Build documentation with Doxygen.")
 
-project(SandpileSimulator VERSION 0.2.1)
+project(SandpileSimulator VERSION 0.3.0)
 
 set(EXECUTABLE_NAME ${PROJECT_NAME})
 
