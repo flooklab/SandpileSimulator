@@ -42,7 +42,7 @@ if(SANDSIM_BUILD_DOCUMENTATION)
 endif()
 
 if(SANDSIM_ENABLE_PLOTTER)
-    find_package(SFML 2 REQUIRED graphics system window)
+    find_package(SFML 3 REQUIRED Graphics System Window)
 endif()
 
 set(FILENAMES
@@ -114,8 +114,8 @@ set(LINKER_FLAGS_REQUIRED "-pthread -lgslcblas -lgsl -lm")
 
 if(SANDSIM_ENABLE_PLOTTER)
     include_directories(${SFML_INCLUDE_DIR})
-    target_link_libraries("${EXECUTABLE_NAME}-bin" ${SFML_LIBRARIES} ${SFML_DEPENDENCIES})
-    set(LINKER_FLAGS_REQUIRED "${LINKER_FLAGS_REQUIRED} -lsfml-graphics -lsfml-system -lsfml-window")
+    target_link_libraries("${EXECUTABLE_NAME}-bin" PRIVATE SFML::Graphics SFML::System SFML::Window)
+    target_link_libraries("${EXECUTABLE_NAME}-lib" PUBLIC SFML::Graphics SFML::System SFML::Window)
 endif(SANDSIM_ENABLE_PLOTTER)
 
 set(LINKER_FLAGS_REQUIRED "${LINKER_FLAGS_REQUIRED}" CACHE STRING "Linker flags that are required to link the dependencies." FORCE)
